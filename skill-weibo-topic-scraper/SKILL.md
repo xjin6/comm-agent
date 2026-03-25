@@ -142,7 +142,17 @@ Then use `AskUserQuestion` for output format:
 
 # Step 5: Run the Scraper
 
-Assemble and execute the command from the skill directory:
+Output data should be saved to the user's Desktop, not inside the skill directory. Use this path:
+```
+~/Desktop/output-weibo-topic-scraper/TOPIC_NAME/
+```
+
+For monthly batches, add the month:
+```
+~/Desktop/output-weibo-topic-scraper/TOPIC_NAME/2025-01/
+```
+
+Assemble and execute the command:
 
 ```bash
 python scripts/main.py \
@@ -150,6 +160,7 @@ python scripts/main.py \
   --cookie "USER_COOKIE" \
   --start-date YYYY-MM-DD \
   --end-date YYYY-MM-DD \
+  --output-dir ~/Desktop/output-weibo-topic-scraper/TOPIC_NAME \
   --format both \
   --delay-min 3 --delay-max 7
 ```
@@ -157,12 +168,6 @@ python scripts/main.py \
 Optional flags:
 - `--skip-comments` — skip comment scraping
 - `--skip-profiles` — skip user profile scraping
-- `--output-dir PATH` — custom output directory
-
-For monthly batches, use separate output directories:
-```
---output-dir output/topic_name/2025-01
-```
 
 Run in the background and report progress to the user periodically.
 
