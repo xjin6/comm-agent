@@ -1,6 +1,6 @@
 ---
-name: quantitative-analysis
-description: >
+name: skill-quantitative-analysis
+description: |
   End-to-end interactive inferential statistics and quantitative analysis for
   survey and tabular data. Guides through data cleaning, variable encoding,
   descriptive analysis, statistical hypothesis tests (ANOVA, Tukey HSD,
@@ -15,10 +15,6 @@ description: >
   table", or "statistical report". This skill covers inferential statistics and
   descriptive analysis only — for segmentation and clustering, use the
   clustering-analysis skill instead.
-metadata:
-   author: Xin Jin <jxi@microsoft.com>
-   version: 1.2
-argument-hint: "analyse [file path or description] — [optional: grouping variable, analyses requested]"
 ---
 
 # Quantitative Analysis Skill
@@ -26,6 +22,14 @@ argument-hint: "analyse [file path or description] — [optional: grouping varia
 You are helping a researcher perform end-to-end quantitative and inferential statistical analysis on survey or tabular data. Follow the phased interactive workflow below.
 
 **CRITICAL RULE: Never proceed to the next step without explicit user confirmation. At every decision point — data cleaning, encoding, analysis choices — present your recommendation, explain why, and wait for the user to approve, modify, or reject before executing.**
+
+## Prerequisites
+
+Before starting:
+1. Read `your-project/context.md` to understand the study design, variables, and hypotheses.
+2. Confirm a data file exists in `your-project/data/` (CSV or Excel).
+3. Install dependencies from the agent root: `pip install -r requirements.txt`
+4. All outputs go to `your-project/output/quantitative-analysis/` — create this folder if needed.
 
 ## Python setup
 
@@ -37,6 +41,8 @@ import os, sys, glob
 def _find_clustering_core():
     """Find clustering_core.py in common skill installation paths."""
     search_patterns = [
+        # comm-agent repo install (primary path)
+        os.path.join(os.getcwd(), 'general-skill', 'skill-quantitative-analysis', 'scripts'),
         # Repo-based installs (skill folder cloned directly under any name)
         os.path.join(os.getcwd(), 'scripts'),
         os.path.join(os.path.dirname(os.path.abspath(__file__)), 'scripts') if '__file__' in dir() else None,
@@ -433,7 +439,7 @@ ax.set_ylabel('Mean Score')
 ax.set_title('Group Means by Variable')
 ax.legend()
 plt.tight_layout()
-path = './chart_group_means.png'
+path = 'your-project/output/quantitative-analysis/chart_group_means.png'
 plt.savefig(path, dpi=150)
 plt.show()
 chart_paths.append(path)
@@ -448,7 +454,7 @@ fig, ax = plt.subplots(figsize=(12, 8))
 sns.heatmap(pivot, annot=True, fmt='.2f', cmap='YlOrRd', ax=ax)
 ax.set_title('Mean Scores Heatmap')
 plt.tight_layout()
-path = './chart_heatmap.png'
+path = 'your-project/output/quantitative-analysis/chart_heatmap.png'
 plt.savefig(path, dpi=150)
 plt.show()
 chart_paths.append(path)
@@ -549,7 +555,7 @@ ax.set_xlabel('Mean Satisfaction Score')
 ax.set_ylabel('Regression β (impact on overall satisfaction)')
 ax.set_title('Satisfaction Driver Priority Matrix')
 plt.tight_layout()
-path = './chart_satisfaction_priority_matrix.png'
+path = 'your-project/output/quantitative-analysis/chart_satisfaction_priority_matrix.png'
 plt.savefig(path, dpi=150)
 chart_paths.append(path)
 ```
@@ -833,7 +839,7 @@ Summary/overview            | 55%          | 40%        | 40%       | ⚠️ Div
            'T-Tests': ttest_list,           # list of result dicts
            'Regression': regression_coef_df,
        },
-       filepath='./quantitative_analysis_results.xlsx',
+       filepath='your-project/output/quantitative-analysis/quantitative_analysis_results.xlsx',
        charts=chart_paths,          # list of PNG paths from Phase 5b
        raw_data=topic_df,           # the filtered DataFrame for this topic
                                     # (or {topic_name: df} for multi-topic exports)
@@ -902,7 +908,7 @@ For option F: produce the qualitative handoff block above and pass to `interview
 - **不适用 (N/A) responses:** These are encoded as NaN, not 0. They are excluded from means, ANOVA, t-tests, and regression. Report N/A rates in the Phase 2 summary so the user knows how many respondents the question applied to.
 - When displaying tables, use pandas DataFrames for clean formatting.
 - If any library is missing, help the user install it: `pip install pandas numpy scipy matplotlib seaborn scikit-learn kmodes statsmodels pingouin openpyxl deep-translator`
-- Save results files in the user's current working directory.
+- Save all results files to `your-project/output/quantitative-analysis/`. Create the folder if it doesn't exist.
 - The baseline group (group 99, if present) represents the overall population for comparison.
 - For **clustering-based group comparisons** (e.g., comparing clusters on statistical tests after running clustering), the user can bring a labeled dataset from the clustering-analysis skill into this workflow — the group column would be the cluster assignment column.
 
