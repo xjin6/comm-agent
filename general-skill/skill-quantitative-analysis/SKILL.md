@@ -31,15 +31,56 @@ Before starting:
 3. Install dependencies from the agent root: `pip install -r requirements.txt`
 4. All outputs go to `your-project/output/quantitative-analysis/` — create this folder if needed.
 
+## Word Export (APA 三线表)
+
+For any results table, also export to a Word document with APA formatting:
+- **Font**: Times New Roman 12 pt throughout
+- **Table style**: 三线表 — top border (1.5 pt), header bottom border (1 pt), table bottom border (1.5 pt), no vertical lines
+- **Table title**: italic, above the table (APA convention)
+- **Table note**: italic 10 pt, below the table (e.g. significance codes)
+
+```python
+import sys
+sys.path.insert(0, 'general-skill/skill-quantitative-analysis/scripts')
+from word_export import export_to_word
+
+export_to_word(
+    results={
+        'Table 1. Descriptive Statistics and Reliability': descriptive_df,
+        'Table 2. Correlation Matrix':                     correlation_df,
+        'Table 3. Regression Coefficients':                regression_df,
+    },
+    filepath='your-project/output/quantitative-analysis/results.docx',
+    title='Study Title: Statistical Results',   # shown as document heading
+    notes={
+        'Table 1. Descriptive Statistics and Reliability':
+            "Note. N = 842. α = Cronbach's alpha.",
+        'Table 2. Correlation Matrix':
+            'Note. * p < .05.',
+        'Table 3. Regression Coefficients':
+            'Note. B = unstandardized coefficient. β = standardized coefficient. '
+            '* p < .05. ** p < .01. *** p < .001.',
+    }
+)
+```
+
+**Table format rules (enforced automatically):**
+- Only **three borders**: top of header (1.5 pt), bottom of header (1 pt), bottom of last row (1.5 pt)
+- All other row/column lines are **white** (invisible) — no grid lines
+- Bold header row, italic table titles, italic 10 pt notes
+
+Always offer Word export at the end of Phase 7 alongside the Excel export:
+> "Would you like a Word document with APA-formatted tables (Times New Roman 12pt, 三线表)?"
+
 ## Python setup
 
-`clustering_core.py` lives in the `scripts/` directory inside this skill folder. It provides all data loading, encoding, and statistical analysis functions. To import it, start every Python script with:
+`quantitative_core.py` lives in the `scripts/` directory inside this skill folder. It provides all data loading, encoding, and statistical analysis functions. To import it, start every Python script with:
 
 ```python
 import os, sys, glob
 
-def _find_clustering_core():
-    """Find clustering_core.py in common skill installation paths."""
+def _find_quantitative_core():
+    """Find quantitative_core.py in common skill installation paths."""
     search_patterns = [
         # comm-agent repo install (primary path)
         os.path.join(os.getcwd(), 'general-skill', 'skill-quantitative-analysis', 'scripts'),
@@ -47,12 +88,12 @@ def _find_clustering_core():
         os.path.join(os.getcwd(), 'scripts'),
         os.path.join(os.path.dirname(os.path.abspath(__file__)), 'scripts') if '__file__' in dir() else None,
         os.path.expanduser('~/*/skills/quantitative-analysis/scripts'),
-        os.path.expanduser('~/*/skills/clustering-analysis/scripts'),
+        os.path.expanduser('~/*/skills/quantitative-analysis/scripts'),
         os.path.expanduser('~/*/*/skills/quantitative-analysis/scripts'),
-        os.path.expanduser('~/*/*/skills/clustering-analysis/scripts'),
+        os.path.expanduser('~/*/*/skills/quantitative-analysis/scripts'),
         # Claude Code managed installs
         os.path.expanduser('~/.claude/skills/quantitative-analysis/scripts'),
-        os.path.expanduser('~/.claude/skills/clustering-analysis/scripts'),
+        os.path.expanduser('~/.claude/skills/quantitative-analysis/scripts'),
         os.path.expanduser('~/.claude/plugins/**/quantitative-analysis/scripts'),
         os.path.expanduser('~/.claude/plugins/cache/**/quantitative-analysis/scripts'),
     ]
@@ -60,24 +101,24 @@ def _find_clustering_core():
         if pattern is None:
             continue
         for path in glob.glob(pattern, recursive=True):
-            if os.path.isfile(os.path.join(path, 'clustering_core.py')):
+            if os.path.isfile(os.path.join(path, 'quantitative_core.py')):
                 return path
     for root, dirs, files in os.walk(os.path.expanduser('~/.claude')):
-        if 'clustering_core.py' in files:
+        if 'quantitative_core.py' in files:
             return root
     return None
 
-_scripts_dir = _find_clustering_core()
+_scripts_dir = _find_quantitative_core()
 if _scripts_dir:
     sys.path.insert(0, _scripts_dir)
 else:
     raise ImportError(
-        "Could not find clustering_core.py. "
+        "Could not find quantitative_core.py. "
         "If running from a cloned repo, set _scripts_dir manually to the absolute path "
         "of the scripts/ folder inside the clustering-analysis skill directory, "
         "then re-run sys.path.insert(0, _scripts_dir)."
     )
-from clustering_core import *
+from quantitative_core import *
 ```
 
 For charts with Chinese characters, set matplotlib fonts at the top of any script that produces charts:
