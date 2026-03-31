@@ -5,43 +5,107 @@ description: Generate an APA 7th edition reference list from literature files in
 
 # APA Reference List Generator
 
-This skill reads all files in `your-project/literature/`, extracts citation metadata from each, and formats a complete APA 7th edition reference list.
+This skill reads all files in `your-project/literature/`, extracts citation metadata from each using up to three methods, picks the most reliable result, and formats a complete APA 7th edition reference list.
 
 ## Step 1 — Scan the literature folder
 
 List all files in `your-project/literature/`. Group them by type:
-- **Structured formats** (`.bib`, `.ris`) — parse fields directly
-- **Documents** (`.pdf`, `.docx`, `.txt`, `.md`) — read and extract metadata from the content
+- **Structured formats** (`.bib`, `.ris`) — skip to Step 3, parse fields directly (most reliable, no need for the three-method pipeline)
+- **PDFs** — run the three-method pipeline below
+- **Other documents** (`.docx`, `.txt`, `.md`) — read content and extract metadata directly (skip to Step 3)
 
 If the folder is empty, tell the user and stop.
 
-## Step 2 — Extract metadata from each file
+## Step 2 — Three-method metadata extraction (PDFs only)
 
-For every file, extract as many of these fields as possible:
+For each PDF, run all three methods and then pick the best result.
 
-| Field | Notes |
-|-------|-------|
-| Authors | All authors. Last name, First initial format for APA |
-| Year | Publication year |
-| Title | Article/chapter/book title |
-| Source | Journal name, book title, or website name |
-| Volume / Issue | For journal articles |
-| Pages | e.g., 45–67 |
-| DOI | Preferred over URL when available |
-| URL | Use only if no DOI |
-| Publisher | For books |
-| Editor(s) | For edited book chapters |
-| Edition | For books |
+---
+
+### Method A — DOI lookup via CrossRef API
+
+**Why it's reliable:** CrossRef is the authoritative registry for academic DOIs. If a DOI is found, the returned data is complete, structured, and verified by the publisher.
+
+**How:**
+1. Scan the first 2 pages of the PDF text for a DOI pattern: `10.\d{4,}/\S+`
+2. If found, call the CrossRef REST API:
+   ```
+   GET https://api.crossref.org/works/{DOI}
+   ```
+3. Parse the JSON response. Key fields: `author` (array of `{family, given}`), `title`, `container-title` (journal), `volume`, `issue`, `page`, `published.date-parts`, `DOI`.
+
+**Confidence: HIGH** — if CrossRef returns a full record, use it as the primary source. Mark as `[CrossRef]`.
+
+---
+
+### Method B — PDF DocInfo / XMP metadata
+
+**Why it's useful:** Publisher-generated PDFs often embed structured metadata (title, author, DOI) in the file's header without needing to read the content.
+
+**How:**
+Run a Python script to extract embedded metadata:
+
+```python
+import fitz  # pymupdf — install with: pip install pymupdf
+doc = fitz.open("file.pdf")
+print(doc.metadata)   # DocInfo: title, author, subject, keywords, creator
+xmp = doc.get_xml_metadata()  # XMP block if present
+```
+
+If `pymupdf` is not installed, try `pypdf`:
+```python
+from pypdf import PdfReader
+r = PdfReader("file.pdf")
+print(r.metadata)  # /Title, /Author, /Subject, /Keywords
+```
+
+If neither is installed, skip this method and note it in the flags.
+
+**Confidence: MEDIUM** — publisher PDFs often have accurate title and author here, but fields like volume/issue/pages are rarely included. Use to supplement or confirm Method A/C.  Mark as `[DocInfo]`.
+
+---
+
+### Method C — PDF content reading
+
+**Why it's needed:** Fallback when no DOI is found and DocInfo is empty or sparse. Reading the first 2 pages of the PDF text usually surfaces the full citation block that appears on the cover page of journal articles.
+
+**How:** Use the Read tool on the PDF (limit to first 2–3 pages). Look for:
+- Title (large heading at the top)
+- Authors (line below title)
+- Journal name, volume, issue, pages (usually in the header/footer or "To cite this article" block)
+- DOI (if not already found in Step A)
+
+**Confidence: MEDIUM-LOW** — accurate for well-formatted PDFs; may miss fields in scanned or non-standard layouts. Mark as `[Content]`.
+
+---
+
+### Picking the best result
+
+After running all available methods, merge and rank:
+
+| Priority | Rule |
+|----------|------|
+| 1st | If Method A (CrossRef) returned a full record → use it for all fields |
+| 2nd | If CrossRef was partial or unavailable → fill gaps with DocInfo (Method B), then Content (Method C) |
+| 3rd | If no DOI found → merge DocInfo + Content, prefer DocInfo for title/author, Content for volume/pages |
+
+Flag any field that came from a lower-priority source as `[?]` so the user knows to verify.
+
+---
+
+## Step 3 — Extract metadata from structured files
 
 **For `.bib` files** — map BibTeX fields: `author`, `year`/`date`, `title`, `journal`/`booktitle`, `volume`, `number` (→ issue), `pages`, `doi`, `url`, `publisher`, `editor`, `edition`.
 
 **For `.ris` files** — map RIS tags: `AU`/`A1` (authors), `PY`/`Y1` (year), `TI`/`T1` (title), `JO`/`JF`/`T2` (journal/book), `VL` (volume), `IS` (issue), `SP`+`EP` (start/end pages), `DO` (DOI), `UR` (URL), `PB` (publisher), `ED` (editor).
 
-**For PDFs and documents** — read the file content. Look for a title (often the first large heading or line), authors (typically below the title or at the end), and the journal/publication name (often in the header, footer, or abstract section). Academic PDFs usually contain the full citation details somewhere in the document.
+**For `.docx` / `.txt` / `.md`** — read content and extract fields by pattern-matching the text.
 
-**When metadata is incomplete** — make a reasonable inference if possible (e.g., a PDF filename like `Smith_2019_cultivation.pdf` suggests author "Smith" and year 2019). Note any uncertain fields with `[?]` so the user knows to verify.
+**When metadata is incomplete** — infer what you can from the filename (e.g., `Smith_2019_cultivation.pdf` → author "Smith", year 2019). Mark uncertain fields with `[?]`.
 
-## Step 3 — Format each reference in APA 7th edition
+---
+
+## Step 4 — Format each reference in APA 7th edition
 
 Apply the correct template based on source type:
 
@@ -65,19 +129,21 @@ Apply the correct template based on source type:
 - No place of publication for books (dropped in APA 7th)
 - If year is unknown, use `(n.d.)`; if author is unknown, move title to author position
 
-## Step 4 — Output
+---
 
-Sort the final list **alphabetically by first author's last name** (or by title if no author). Number each entry for easy reference in conversation, but do NOT include numbers in the saved file (APA reference lists are not numbered).
+## Step 5 — Output
 
-**In the conversation:** Print the full reference list with a header, numbered for readability.
+Sort the final list **alphabetically by first author's last name** (or by title if no author). Number each entry for easy reference in conversation, but do NOT include numbers in the saved file.
 
-**Save to file:** Write the unnumbered list to `your-project/output/apa_references.md` using this structure:
+**In the conversation:** Print the full reference list, numbered for readability.
+
+**Save to file:** Write the unnumbered list to `your-project/output/apa_references.md`:
 
 ```markdown
 # APA 7th Edition References
 
-Generated: YYYY-MM-DD  
-Source folder: your-project/literature/  
+Generated: YYYY-MM-DD
+Source folder: your-project/literature/
 Total references: N
 
 ---
@@ -89,9 +155,12 @@ Author, B. B. (Year). Title...
 
 Tell the user the file path when done.
 
-## Step 5 — Flag issues
+---
 
-After the list, report any problems in a short section:
-- Files that could not be read
+## Step 6 — Flag issues
+
+After the list, report in a short section:
+- Files where all three methods failed or returned sparse data
 - References with missing critical fields (author, year, or title)
 - Fields marked `[?]` that the user should verify
+- Whether `pymupdf`/`pypdf` is installed (if not, Method B was skipped — suggest `pip install pymupdf`)

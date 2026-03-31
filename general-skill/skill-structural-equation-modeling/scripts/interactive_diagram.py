@@ -67,6 +67,47 @@ body { font-family: Arial, sans-serif; background: #f0f4f8; height: 100vh; displ
 }
 #cy { flex: 1; background: #ffffff; }
 
+/* Direction picker popup */
+#dir-picker {
+  display: none;
+  position: fixed;
+  z-index: 999;
+  background: rgba(30,45,61,0.95);
+  border: 1px solid #3a5068;
+  border-radius: 10px;
+  padding: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  user-select: none;
+}
+#dir-picker .dir-title {
+  color: #a8d5cf; font-size: 11px; font-weight: bold;
+  text-align: center; margin-bottom: 6px;
+}
+#dir-picker .dir-grid {
+  display: grid;
+  grid-template-columns: 36px 36px 36px;
+  grid-template-rows: 36px 36px 36px;
+  gap: 3px;
+}
+#dir-picker .dir-btn {
+  width: 36px; height: 36px;
+  border: 1.5px solid #3a5068;
+  border-radius: 6px;
+  background: #2e4259;
+  color: #8ba9bf;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+#dir-picker .dir-btn:hover { background: #3B7A7A; color: #e8f5f5; border-color: #A8D5CF; }
+#dir-picker .dir-btn.active { background: #3B7A7A; color: #fff; border-color: #A8D5CF; }
+#dir-picker .dir-btn.auto-btn {
+  grid-column: 2; grid-row: 2;
+  font-size: 11px; font-weight: bold;
+  background: #1e2d3d; color: #a8d5cf;
+}
+
 #hint {
   position: fixed;
   bottom: 10px;
@@ -117,6 +158,22 @@ body { font-family: Arial, sans-serif; background: #f0f4f8; height: 100vh; displ
 </div>
 
 <div id="cy"></div>
+
+<!-- Direction picker popup -->
+<div id="dir-picker">
+  <div class="dir-title" id="dir-title">── items ──</div>
+  <div class="dir-grid">
+    <div></div>
+    <button class="dir-btn" id="dir-top"    title="Items above"  onclick="applyDir('top')">↑</button>
+    <div></div>
+    <button class="dir-btn" id="dir-left"   title="Items left"   onclick="applyDir('left')">←</button>
+    <button class="dir-btn auto-btn"         title="Auto"         onclick="applyDir('auto')">Auto</button>
+    <button class="dir-btn" id="dir-right"  title="Items right"  onclick="applyDir('right')">→</button>
+    <div></div>
+    <button class="dir-btn" id="dir-bottom" title="Items below"  onclick="applyDir('bottom')">↓</button>
+    <div></div>
+  </div>
+</div>
 
 <div id="legend">
   <span class="leg-sig">─── Significant path (p&lt;.05)</span><br>
@@ -289,6 +346,147 @@ const cy = cytoscape({
   boxSelectionEnabled: false
 });
 
+// ── Layout constants (px, match Python side) ─────────────────────────────────
+const IT_H    = 130;   // horizontal gap between items
+const IT_V    = 90;    // vertical gap between items (vertical layout)
+const IT_DROP = 130;   // construct → items distance
+const ER_DROP = 85;    // items → error distance
+
+// Track current direction per construct (default: bottom)
+const constructDir = {};
+
+// ── Disable drag on items and errors ─────────────────────────────────────────
+cy.nodes('.item, .error').ungrabify();
+
+// ── Direction picker state ────────────────────────────────────────────────────
+let pickerTarget = null;
+const picker     = document.getElementById('dir-picker');
+
+function hidePicker() {
+  picker.style.display = 'none';
+  pickerTarget = null;
+  cy.nodes('.construct').removeClass('selected-construct');
+}
+
+// Highlight selected construct
+cy.style().selector('.construct.selected-construct').style({
+  'border-color': '#f39c12',
+  'border-width': 3.5,
+  'shadow-color': '#f39c12',
+  'shadow-blur': 12
+}).update();
+
+// Click construct → show direction picker
+cy.on('tap', '.construct', evt => {
+  const node = evt.target;
+  if (pickerTarget && pickerTarget.id() === node.id()) {
+    hidePicker(); return;
+  }
+  cy.nodes('.construct').removeClass('selected-construct');
+  node.addClass('selected-construct');
+  pickerTarget = node;
+
+  // Highlight current direction button
+  ['top','bottom','left','right'].forEach(d => {
+    const btn = document.getElementById('dir-' + d);
+    if (btn) btn.classList.toggle('active', constructDir[node.id()] === d);
+  });
+
+  // Position picker near the construct
+  const rp   = node.renderedPosition();
+  const rect  = document.getElementById('cy').getBoundingClientRect();
+  const px    = rect.left + rp.x;
+  const py    = rect.top  + rp.y;
+  picker.style.display = 'block';
+  document.getElementById('dir-title').textContent = node.id();
+
+  // Keep picker on-screen
+  const pw = picker.offsetWidth  || 130;
+  const ph = picker.offsetHeight || 130;
+  picker.style.left = Math.min(px + 50, window.innerWidth  - pw - 10) + 'px';
+  picker.style.top  = Math.min(py - 20, window.innerHeight - ph - 10) + 'px';
+});
+
+// Click background → hide picker
+cy.on('tap', evt => {
+  if (evt.target === cy) hidePicker();
+});
+
+// ── Reposition items+errors around a construct ────────────────────────────────
+function repositionItems(constructId, dir) {
+  const construct = cy.getElementById(constructId);
+  const cx = construct.position('x');
+  const cy_ = construct.position('y');
+
+  const items = cy.nodes('.item').filter(n => n.data('construct') === constructId);
+  const n = items.length;
+  if (n === 0) return;
+
+  items.forEach((item, i) => {
+    let ix, iy, ex, ey;
+    if (dir === 'bottom') {
+      ix = cx - (n - 1) * IT_H / 2 + i * IT_H;
+      iy = cy_ + IT_DROP;
+      ex = ix;  ey = iy + ER_DROP;
+    } else if (dir === 'top') {
+      ix = cx - (n - 1) * IT_H / 2 + i * IT_H;
+      iy = cy_ - IT_DROP;
+      ex = ix;  ey = iy - ER_DROP;
+    } else if (dir === 'right') {
+      ix = cx + IT_DROP;
+      iy = cy_ - (n - 1) * IT_V / 2 + i * IT_V;
+      ex = ix + ER_DROP;  ey = iy;
+    } else { // left
+      ix = cx - IT_DROP;
+      iy = cy_ - (n - 1) * IT_V / 2 + i * IT_V;
+      ex = ix - ER_DROP;  ey = iy;
+    }
+
+    item.position({ x: ix, y: iy });
+
+    const err = cy.getElementById('e_' + item.id());
+    if (err.length > 0) err.position({ x: ex, y: ey });
+  });
+
+  constructDir[constructId] = dir;
+}
+
+// ── Auto direction: pick side furthest from other constructs ──────────────────
+function autoDir(constructId) {
+  const construct = cy.getElementById(constructId);
+  const cx = construct.position('x');
+  const cy_ = construct.position('y');
+
+  const others = cy.nodes('.construct').filter(n => n.id() !== constructId);
+  if (others.length === 0) return 'bottom';
+
+  // Accumulate neighbour mass in each direction
+  const score = { top: 0, bottom: 0, left: 0, right: 0 };
+  others.forEach(o => {
+    const dx = o.position('x') - cx;
+    const dy = o.position('y') - cy_;
+    if (Math.abs(dx) > Math.abs(dy)) {
+      if (dx > 0) score.right++; else score.left++;
+    } else {
+      if (dy > 0) score.bottom++; else score.top++;
+    }
+  });
+  // Pick the side with fewest neighbours (most free space)
+  return Object.entries(score).sort((a, b) => a[1] - b[1])[0][0];
+}
+
+// Apply direction from picker buttons
+function applyDir(dir) {
+  if (!pickerTarget) return;
+  const id = pickerTarget.id();
+  const d  = dir === 'auto' ? autoDir(id) : dir;
+  repositionItems(id, d);
+  ['top','bottom','left','right'].forEach(k => {
+    const btn = document.getElementById('dir-' + k);
+    if (btn) btn.classList.toggle('active', k === d);
+  });
+}
+
 // ── Mode toggle ──────────────────────────────────────────────────────────────
 function setMode(mode) {
   currentMode = mode;
@@ -299,6 +497,7 @@ function setMode(mode) {
   } else {
     cy.elements('.item, .error, .error_edge, .measurement').show();
   }
+  hidePicker();
 }
 
 // ── Coefficient toggle ───────────────────────────────────────────────────────
@@ -306,27 +505,24 @@ function setCoeff(coeff) {
   currentCoeff = coeff;
   document.getElementById('btn-std').classList.toggle('active',   coeff === 'std');
   document.getElementById('btn-unstd').classList.toggle('active', coeff === 'unstd');
-
-  const labelKey = coeff === 'std' ? 'label_std' : 'label_unstd';
-  const errKey   = coeff === 'std' ? 'label_std' : 'label_unstd';
-
-  cy.elements('.measurement').style('label', ele => ele.data(labelKey));
-  cy.elements('.structural').style('label',  ele => ele.data(labelKey));
-  cy.elements('.error').style('label',       ele => ele.data(errKey));
+  const key = coeff === 'std' ? 'label_std' : 'label_unstd';
+  cy.elements('.measurement').style('label', ele => ele.data(key));
+  cy.elements('.structural').style('label',  ele => ele.data(key));
+  cy.elements('.error').style('label',       ele => ele.data(key));
 }
 
 // ── Export PNG ───────────────────────────────────────────────────────────────
 function exportPNG() {
-  const uri = cy.png({ scale: 2.5, bg: 'white', full: true, output: 'base64uri' });
-  const a   = document.createElement('a');
-  a.href     = uri;
-  a.download = 'sem_diagram.png';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  hidePicker();
+  setTimeout(() => {
+    const uri = cy.png({ scale: 2.5, bg: 'white', full: true, output: 'base64uri' });
+    const a   = document.createElement('a');
+    a.href = uri; a.download = 'sem_diagram.png';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  }, 100);
 }
 
-// ── Linked movement: drag construct → items + errors follow ──────────────────
+// ── Linked drag: construct moves → items + errors follow ─────────────────────
 const _prevPos = {};
 
 cy.on('grab', '.construct', evt => {
@@ -335,33 +531,26 @@ cy.on('grab', '.construct', evt => {
 });
 
 cy.on('drag', '.construct', evt => {
-  const n  = evt.target;
-  const id = n.id();
+  const n = evt.target, id = n.id();
   if (!_prevPos[id]) return;
-
   const dx = n.position('x') - _prevPos[id].x;
   const dy = n.position('y') - _prevPos[id].y;
-  if (dx === 0 && dy === 0) return;
+  if (!dx && !dy) return;
 
-  // Move all items belonging to this construct
-  cy.nodes('.item')
-    .filter(node => node.data('construct') === id)
+  cy.nodes('.item').filter(nd => nd.data('construct') === id)
     .forEach(item => item.shift({ x: dx, y: dy }));
-
-  // Move all errors whose item belongs to this construct
-  cy.nodes('.error')
-    .filter(node => {
-      const owner = cy.getElementById(node.data('item'));
-      return owner.length > 0 && owner.data('construct') === id;
-    })
-    .forEach(err => err.shift({ x: dx, y: dy }));
+  cy.nodes('.error').filter(nd => {
+    const owner = cy.getElementById(nd.data('item'));
+    return owner.length > 0 && owner.data('construct') === id;
+  }).forEach(err => err.shift({ x: dx, y: dy }));
 
   _prevPos[id] = { x: n.position('x'), y: n.position('y') };
 });
 
-cy.on('free', '.construct', evt => {
-  delete _prevPos[evt.target.id()];
-});
+cy.on('free', '.construct', evt => { delete _prevPos[evt.target.id()]; });
+
+// ── Keyboard: Escape closes picker ───────────────────────────────────────────
+document.addEventListener('keydown', e => { if (e.key === 'Escape') hidePicker(); });
 
 cy.fit(50);
 </script>

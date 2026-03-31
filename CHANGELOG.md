@@ -1,5 +1,10 @@
 # Changelog
 
+## [agent] - 2026-03-31 (2)
+
+### Changed
+- `skill-apa-reference-list` — upgraded metadata extraction to three-method pipeline: (1) DOI → CrossRef API lookup, (2) PDF DocInfo/XMP parsing via pymupdf/pypdf, (3) PDF content reading; skill now merges all three and picks the most reliable result per field
+
 ## [agent] - 2026-03-31
 
 ### Added
