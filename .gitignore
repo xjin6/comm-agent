@@ -1,5 +1,14 @@
 __pycache__/
 *.pyc
 .DS_Store
-output/
 *.log
+
+# Project folders — keep structure, ignore contents
+your-project/data/*
+!your-project/data/.gitkeep
+your-project/knowledge/*
+!your-project/knowledge/.gitkeep
+your-project/output/*
+!your-project/output/.gitkeep
+your-project/literature/*
+!your-project/literature/.gitkeep
