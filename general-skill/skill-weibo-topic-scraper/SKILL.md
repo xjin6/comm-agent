@@ -26,7 +26,7 @@ Before starting, verify the environment:
 1. Locate the skill directory — the folder containing this SKILL.md file. It should also contain
    a `scripts/` directory with `main.py` and other Python files.
 2. Check `scripts/main.py` exists. If not, tell the user to clone or download the project first.
-3. Install dependencies if needed: `pip install -r requirements.txt` (run from the skill directory)
+3. Install dependencies if needed: `pip install -r requirements.txt` (run from the agent root directory)
 
 All `python` commands below run from the skill directory (where SKILL.md lives).
 
@@ -142,25 +142,25 @@ Then use `AskUserQuestion` for output format:
 
 # Step 5: Run the Scraper
 
-Output data should be saved to the user's Desktop, not inside the skill directory. Use this path:
+Output data should be saved to the project output folder. Use this path:
 ```
-~/Desktop/output-weibo-topic-scraper/TOPIC_NAME/
+your-project/output/TOPIC_NAME/
 ```
 
 For monthly batches, add the month:
 ```
-~/Desktop/output-weibo-topic-scraper/TOPIC_NAME/2025-01/
+your-project/output/TOPIC_NAME/2025-01/
 ```
 
-Assemble and execute the command:
+Assemble and execute the command (run from the agent root directory):
 
 ```bash
-python scripts/main.py \
+python general-skill/skill-weibo-topic-scraper/scripts/main.py \
   --topic "TOPIC_NAME" \
   --cookie "USER_COOKIE" \
   --start-date YYYY-MM-DD \
   --end-date YYYY-MM-DD \
-  --output-dir ~/Desktop/output-weibo-topic-scraper/TOPIC_NAME \
+  --output-dir your-project/output/TOPIC_NAME \
   --format both \
   --delay-min 3 --delay-max 7
 ```
