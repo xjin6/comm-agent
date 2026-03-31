@@ -1,5 +1,14 @@
 # Changelog
 
+## [agent] - 2026-03-31 (3)
+
+### Added
+- `skill-quantitative-analysis` v1.2 — imported from gim-home/studio8researchskills
+  Covers end-to-end inferential statistics: ANOVA, Tukey HSD, t-tests, chi-squared,
+  linear/logistic/ordinal regression, descriptive analysis, and Excel export
+
+---
+
 ## [agent] - 2026-03-31 (2)
 
 ### Changed
