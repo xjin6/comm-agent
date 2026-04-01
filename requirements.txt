@@ -1,4 +1,4 @@
-# skill-weibo-topic-scraper
+# skill-weibo-topic-scraper / skill-xiaohongshu-scraper
 requests>=2.28.0
 beautifulsoup4>=4.11.0
 lxml>=4.8.0
