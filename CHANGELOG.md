@@ -1,5 +1,13 @@
 # Changelog
 
+## [agent] - 2026-04-01
+
+### Added
+- `skill-xiaohongshu-scraper` v0.1.0 — scrape notes, comments, and user profiles
+  from 小红书 by keyword; cookie-based auth, sort/filter options, incremental saving
+
+---
+
 ## [agent] - 2026-03-31 (3)
 
 ### Added

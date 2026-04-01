@@ -15,6 +15,7 @@ Standalone skills for specific research tasks. Each skill has its own directory 
 
 Available skills:
 - `skill-weibo-topic-scraper` — Scrape posts, comments, and user profiles from Sina Weibo topics
+- `skill-xiaohongshu-scraper` — Scrape notes, comments, and user profiles from Xiaohongshu (小红书) by keyword
 - `skill-structural-equation-modeling` — Specify, estimate, and interpret SEM models including CFA and path analysis
 - `skill-apa-reference-list` — Read literature files and generate an APA 7th edition reference list
 - `skill-quantitative-analysis` — End-to-end inferential statistics: ANOVA, t-tests, chi-squared, regression (linear/logistic/ordinal), and descriptive analysis on survey data
