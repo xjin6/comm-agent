@@ -96,8 +96,19 @@ def parse_note(raw: dict) -> Optional[XHSNote]:
         last_ts = note_card.get("last_update_time", ts)
         import datetime
         def _ts(t):
+            if not t:
+                return ""
+            # Already a date/datetime string
+            if isinstance(t, str) and len(t) >= 8 and not t.lstrip("-").isdigit():
+                return t
+            # Unix timestamp (seconds or ms)
             try:
-                return datetime.datetime.fromtimestamp(int(t)).isoformat()
+                v = int(t)
+                if v == 0:
+                    return ""
+                if v > 1e10:
+                    v = v // 1000
+                return datetime.datetime.fromtimestamp(v).isoformat()
             except Exception:
                 return str(t)
 
@@ -128,14 +139,18 @@ def parse_note(raw: dict) -> Optional[XHSNote]:
 
 def parse_comment(raw: dict, note_id: str) -> Optional[XHSComment]:
     try:
-        import datetime
-        def _ts(t):
-            try:
-                return datetime.datetime.fromtimestamp(int(t)).isoformat()
-            except Exception:
-                return str(t)
-
         user = raw.get("user_info", {})
+        t = raw.get("create_time", "")
+        # Handle both date strings ("2025-04-25") and unix timestamps
+        if isinstance(t, (int, float)) and t > 0:
+            import datetime
+            v = int(t)
+            if v > 1e10:
+                v = v // 1000
+            publish_time = datetime.datetime.fromtimestamp(v).isoformat()
+        else:
+            publish_time = str(t) if t else ""
+
         return XHSComment(
             comment_id        = raw.get("id", ""),
             note_id           = note_id,
@@ -143,7 +158,7 @@ def parse_comment(raw: dict, note_id: str) -> Optional[XHSComment]:
             user_name         = user.get("nickname", ""),
             content           = raw.get("content", ""),
             like_count        = int(raw.get("like_count", 0) or 0),
-            publish_time      = _ts(raw.get("create_time", 0)),
+            publish_time      = publish_time,
             ip_location       = raw.get("ip_location", ""),
             sub_comment_count = int(raw.get("sub_comment_count", 0) or 0),
             parent_comment_id = raw.get("target_comment", {}).get("id", ""),
