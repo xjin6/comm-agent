@@ -178,7 +178,7 @@ class XHSClient:
                 # Read counts and publish date from the loaded panel
                 panel_data = self.driver.execute_script(
                     """
-                    var out = {liked:0, collected:0, comments:0, date:'', ip:''};
+                    var out = {liked:0, collected:0, comments:0, date:'', ip:'', desc:''};
                     var counts = document.querySelectorAll('.engage-bar-style .count');
                     if (counts.length >= 1) out.liked     = counts[0].innerText.trim();
                     if (counts.length >= 2) out.collected = counts[1].innerText.trim();
@@ -187,6 +187,8 @@ class XHSClient:
                     out.date = dateEl ? dateEl.innerText.trim() : '';
                     var ipEl = document.querySelector('.bottom-container [class*="ip"], [class*="ip-location"]');
                     out.ip = ipEl ? ipEl.innerText.trim() : '';
+                    var descEl = document.querySelector('#detail-desc, [class*="note-content"] [class*="desc"], .note-desc');
+                    out.desc = descEl ? descEl.innerText.trim() : '';
                     return JSON.stringify(out);
                     """
                 )
@@ -223,7 +225,7 @@ class XHSClient:
                 "xsec_token": dd.get("xsec_token", ""),
                 "note_card": {
                     "title":    n.get("title", ""),
-                    "desc":     "",
+                    "desc":     dd.get("desc", ""),
                     "type":     "normal",
                     "user": {
                         "user_id":  n.get("author_id", ""),
