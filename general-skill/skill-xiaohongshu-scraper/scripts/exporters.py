@@ -32,7 +32,8 @@ def save_notes(notes: List[XHSNote], output_dir: str, fmt: str = "both") -> None
         print(f"  Saved {len(rows)} notes → {path}")
 
 
-def save_comments(comments: List[XHSComment], output_dir: str, fmt: str = "both") -> None:
+def save_comments(comments: List[XHSComment], output_dir: str, fmt: str = "both",
+                  quiet: bool = False) -> None:
     os.makedirs(output_dir, exist_ok=True)
     rows = [asdict(c) for c in comments]
     if not rows:
@@ -42,15 +43,18 @@ def save_comments(comments: List[XHSComment], output_dir: str, fmt: str = "both"
         with open(path, "w", newline="", encoding="utf-8-sig") as f:
             w = csv.DictWriter(f, fieldnames=rows[0].keys())
             w.writeheader(); w.writerows(rows)
-        print(f"  Saved {len(rows)} comments → {path}")
+        if not quiet:
+            print(f"  Saved {len(rows)} comments → {path}")
     if fmt in ("json", "both"):
         path = os.path.join(output_dir, "comments.json")
         with open(path, "w", encoding="utf-8") as f:
             json.dump(rows, f, ensure_ascii=False, indent=2)
-        print(f"  Saved {len(rows)} comments → {path}")
+        if not quiet:
+            print(f"  Saved {len(rows)} comments → {path}")
 
 
-def save_users(users: List[XHSUser], output_dir: str, fmt: str = "both") -> None:
+def save_users(users: List[XHSUser], output_dir: str, fmt: str = "both",
+               quiet: bool = False) -> None:
     os.makedirs(output_dir, exist_ok=True)
     rows = [asdict(u) for u in users]
     if not rows:
@@ -60,9 +64,11 @@ def save_users(users: List[XHSUser], output_dir: str, fmt: str = "both") -> None
         with open(path, "w", newline="", encoding="utf-8-sig") as f:
             w = csv.DictWriter(f, fieldnames=rows[0].keys())
             w.writeheader(); w.writerows(rows)
-        print(f"  Saved {len(rows)} users → {path}")
+        if not quiet:
+            print(f"  Saved {len(rows)} users → {path}")
     if fmt in ("json", "both"):
         path = os.path.join(output_dir, "users.json")
         with open(path, "w", encoding="utf-8") as f:
             json.dump(rows, f, ensure_ascii=False, indent=2)
-        print(f"  Saved {len(rows)} users → {path}")
+        if not quiet:
+            print(f"  Saved {len(rows)} users → {path}")
