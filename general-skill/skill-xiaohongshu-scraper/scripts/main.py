@@ -38,10 +38,11 @@ def progress_bar(current: int, total: int, width: int = 30) -> str:
 
 def scrape(keyword: str, cookie: str, max_pages: int, sort: str,
            note_type: int, skip_comments: bool, skip_users: bool,
-           output_dir: str, fmt: str, delay_min: float, delay_max: float) -> None:
+           output_dir: str, fmt: str, delay_min: float, delay_max: float,
+           browser: str = "auto") -> None:
 
-    log("Launching Edge browser...")
-    client = XHSClient(cookie, delay_min=delay_min, delay_max=delay_max)
+    log("Launching browser...")
+    client = XHSClient(cookie, delay_min=delay_min, delay_max=delay_max, browser=browser)
 
     if not client.validate_cookie():
         log("ERROR: Cookie missing required 'a1' field. Please re-extract your cookie.")
@@ -128,12 +129,19 @@ def scrape(keyword: str, cookie: str, max_pages: int, sort: str,
 
                 data     = resp.get("data", {})
                 raw_cmts = data.get("comments", [])
+                seen_ids = set()
                 for rc in raw_cmts:
+                    cid = rc.get("id", "")
+                    if cid and cid in seen_ids:
+                        continue
+                    if cid:
+                        seen_ids.add(cid)
                     c = parse_comment(rc, note.note_id)
                     if c:
                         comments.append(c)
                         note_cmts += 1
-                    for sub in rc.get("sub_comments", []):
+                    # sub_comments may be camelCase or snake_case
+                    for sub in (rc.get("subComments") or rc.get("sub_comments", [])):
                         sc = parse_comment(sub, note.note_id)
                         if sc:
                             comments.append(sc)
@@ -145,8 +153,9 @@ def scrape(keyword: str, cookie: str, max_pages: int, sort: str,
                     break
 
             log(f"    got {note_cmts} comments  |  running total: {len(comments)}")
+            save_comments(comments, output_dir, fmt, quiet=True)
 
-        save_comments(comments, output_dir, fmt)
+        save_comments(comments, output_dir, fmt)   # final print
         log(f"Phase 2 done — {len(comments)} comments collected.")
 
     # ── Phase 3: User profiles ────────────────────────────────────────────────
@@ -168,10 +177,11 @@ def scrape(keyword: str, cookie: str, max_pages: int, sort: str,
                     if u:
                         users[uid] = u
                         log(f"    OK: {u.nickname}")
+                        save_users(list(users.values()), output_dir, fmt, quiet=True)
             except Exception as e:
                 log(f"    ERROR: {e}")
 
-        save_users(list(users.values()), output_dir, fmt)
+        save_users(list(users.values()), output_dir, fmt)   # final print
         log(f"Phase 3 done — {len(users)} user profiles collected.")
 
     # ── Summary ───────────────────────────────────────────────────────────────
@@ -201,6 +211,9 @@ def main():
     parser.add_argument("--format",        default="both", choices=["csv", "json", "both"])
     parser.add_argument("--delay-min",     type=float, default=3.0)
     parser.add_argument("--delay-max",     type=float, default=7.0)
+    parser.add_argument("--browser",       default="auto",
+                        help="Browser to use: auto (default), msedge, chrome, "
+                             "msedge-beta, chrome-beta, msedge-dev, chromium")
     args = parser.parse_args()
 
     scrape(
@@ -215,6 +228,7 @@ def main():
         fmt           = args.format,
         delay_min     = args.delay_min,
         delay_max     = args.delay_max,
+        browser       = args.browser,
     )
 
 
