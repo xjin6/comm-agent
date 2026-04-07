@@ -1,5 +1,5 @@
 ---
-name: skill-xiaohongshu-scraper
+name: skill-xiaohongshu-search-scraper
 description: |
   Xiaohongshu (小红书/RED) scraper for academic research — scrapes notes (笔记),
   comments (评论), and user profiles (用户) by keyword or topic.
@@ -108,7 +108,7 @@ Use `AskUserQuestion` with `multiSelect: true` for what to collect:
 Output goes to `your-project/output/xiaohongshu/KEYWORD/`:
 
 ```bash
-python general-skill/skill-xiaohongshu-scraper/scripts/main.py \
+python general-skill/skill-xiaohongshu-search-scraper/scripts/main.py \
   --keyword "KEYWORD" \
   --cookie "USER_COOKIE" \
   --max-pages 10 \

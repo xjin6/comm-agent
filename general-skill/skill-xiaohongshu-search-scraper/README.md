@@ -1,13 +1,15 @@
-# Xiaohongshu (小红书) Scraper
+# Xiaohongshu Scraper
 
-A Python scraper for collecting 小红书 (RED) note data for academic research. Scrapes notes (笔记), comments (评论), and user profiles (用户) by keyword search.
+> **v0.1.0** · Updated 2026-04-01 · `scraper`
+
+A Python scraper for collecting Xiaohongshu note data for academic research. Scrapes notes, comments, and user profiles by keyword search.
 
 ## Features
 
 - **Notes**: ID, title, description, author, likes/collects/comments/shares, publish time, topic tags, image/video URLs, IP location
 - **Comments**: Including nested replies, with reply-to relationships
 - **User Profiles**: Nickname, gender, location, bio, followers, verified status
-- **Sort options**: 综合 (general) | 最新 (newest) | 最热 (most popular)
+- **Sort options**: general | newest | most popular
 - **Content filter**: All | Image notes | Video notes
 - **Incremental saving**: Data saved after each page — nothing lost if interrupted
 - **Rate limiting**: Built-in random delays to avoid bans
@@ -42,7 +44,7 @@ pip install -r requirements.txt   # from agent root
 ### 3. Run
 
 ```bash
-python general-skill/skill-xiaohongshu-scraper/scripts/main.py \
+python general-skill/skill-xiaohongshu-search-scraper/scripts/main.py \
   --keyword "防晒霜" \
   --cookie "YOUR_COOKIE" \
   --max-pages 10 \
@@ -54,7 +56,7 @@ python general-skill/skill-xiaohongshu-scraper/scripts/main.py \
 | Flag | Description | Default |
 |------|-------------|---------|
 | `--keyword` | Search keyword | Required |
-| `--cookie` | 小红书 cookie string | Required |
+| `--cookie` | Xiaohongshu cookie string | Required |
 | `--max-pages` | Max pages to scrape (20 notes/page) | 10 |
 | `--sort` | `general` / `time_descending` / `popularity_descending` | `general` |
 | `--note-type` | 0=all, 1=video, 2=image | 0 |
@@ -67,12 +69,12 @@ python general-skill/skill-xiaohongshu-scraper/scripts/main.py \
 
 ## Differences from Weibo Scraper
 
-| Feature | Weibo | 小红书 |
-|---------|-------|--------|
+| Feature | Weibo | Xiaohongshu |
+|---------|-------|-------------|
 | Auth field | `SUB=` in cookie | `a1=` in cookie |
-| Search unit | Topic (话题) | Keyword / topic tag |
+| Search unit | Topic / hashtag | Keyword / topic tag |
 | Cookie lifetime | Hours to days | Hours (refresh more often) |
-| Content types | Posts + comments | Notes (图文/视频) + comments |
+| Content types | Posts + comments | Notes (image/video) + comments |
 | Max results | ~500/hour (paginated by time) | ~200–400/keyword (paginated by page) |
 
 ## Scripts
@@ -86,8 +88,8 @@ python general-skill/skill-xiaohongshu-scraper/scripts/main.py \
 
 ## Author
 
-**Xin Jin** — xjin6@outlook.com
+**Xin Jin** (@xjin6) · xjin6@outlook.com
 
 ## License
 
-MIT
+CC BY-NC-ND 4.0

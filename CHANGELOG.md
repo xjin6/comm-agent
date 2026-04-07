@@ -1,9 +1,18 @@
 # Changelog
 
+## [agent] - 2026-04-07
+
+### Added
+- `skill-douyin-trending-topic-scraper` v0.1.0 — scrape Douyin trending topics list (热搜榜)
+  and videos under specific topics; three modes: trending / topic / all;
+  no login required; outputs rank, hot value, video count, engagement metrics to CSV/JSON
+
+---
+
 ## [agent] - 2026-04-01
 
 ### Added
-- `skill-xiaohongshu-scraper` v0.1.0 — scrape notes, comments, and user profiles
+- `skill-xiaohongshu-search-scraper` v0.1.0 — scrape notes, comments, and user profiles
   from 小红书 by keyword; cookie-based auth, sort/filter options, incremental saving
 
 ---
@@ -11,9 +20,8 @@
 ## [agent] - 2026-03-31 (3)
 
 ### Added
-- `skill-quantitative-analysis` v1.2 — imported from gim-home/studio8researchskills
-  Covers end-to-end inferential statistics: ANOVA, Tukey HSD, t-tests, chi-squared,
-  linear/logistic/ordinal regression, descriptive analysis, and Excel export
+- `skill-quantitative-analysis` v1.2 — end-to-end inferential statistics: ANOVA, Tukey HSD,
+  t-tests, chi-squared, linear/logistic/ordinal regression, descriptive analysis, and Excel export
 
 ---
 

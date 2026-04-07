@@ -1,5 +1,7 @@
 # APA Reference List Generator
 
+> **v0.1.0** · Updated 2026-03-31 · `utility`
+
 Reads all literature files in `your-project/literature/`, extracts citation metadata using a three-method pipeline, and outputs a complete APA 7th edition reference list.
 
 ## Features
@@ -49,8 +51,8 @@ BibTeX and RIS files are parsed directly — no extraction needed.
 
 ## Author
 
-**Xin Jin** — xjin6@outlook.com
+**Xin Jin** (@xjin6) · xjin6@outlook.com
 
 ## License
 
-MIT
+CC BY-NC-ND 4.0

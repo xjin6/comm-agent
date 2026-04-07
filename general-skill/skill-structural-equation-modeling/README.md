@@ -1,5 +1,7 @@
 # Structural Equation Modeling
 
+> **v0.1.0** · Updated 2026-03-29 · `analysis`
+
 A step-by-step SEM assistant for communication researchers. Covers EFA, CFA, full latent variable SEM, mediation, and moderation analysis using Python. Produces APA-style tables, static AMOS-style path diagrams, and an interactive HTML viewer.
 
 ## Features
@@ -62,8 +64,8 @@ Open `sem_interactive.html` in any browser:
 
 ## Author
 
-**Xin Jin** — xjin6@outlook.com
+**Xin Jin** (@xjin6) · xjin6@outlook.com
 
 ## License
 
-MIT
+CC BY-NC-ND 4.0
