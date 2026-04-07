@@ -11,13 +11,13 @@ comm-agent/
 ├── general-knowledge/        # Shared theory & methods knowledge base
 ├── general-skill/            # Reusable research skills (scraping, analysis, etc.)
 ├── your-project/             # Your personal workspace (not shared)
-│   ├── project-tiktok/       # One folder per project
+│   ├── project-example1/     # One folder per project
 │   │   ├── context.md        # Describe your study here
 │   │   ├── data/             # Your raw data
 │   │   ├── knowledge/        # Your literature & notes
 │   │   ├── literature/       # Drop PDFs/BIB/RIS here for APA reference generation
 │   │   └── output/           # Agent-generated results
-│   └── project-weibo/        # Another project
+│   └── project-example2/     # Another project
 │       └── ...
 └── CLAUDE.md                 # Agent instructions
 ```
