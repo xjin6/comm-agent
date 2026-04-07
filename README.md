@@ -8,18 +8,18 @@ Built on [Claude Code](https://claude.ai/claude-code), this agent gives research
 
 ```
 comm-agent/
+├── CLAUDE.md                 # Agent instructions
 ├── general-knowledge/        # Shared theory & methods knowledge base
 ├── general-skill/            # Reusable research skills (scraping, analysis, etc.)
-├── your-project/             # Your personal workspace (not shared)
-│   ├── project-example1/     # One folder per project
-│   │   ├── context.md        # Describe your study here
-│   │   ├── data/             # Your raw data
-│   │   ├── knowledge/        # Your literature & notes
-│   │   ├── literature/       # Drop PDFs/BIB/RIS here for APA reference generation
-│   │   └── output/           # Agent-generated results
-│   └── project-example2/     # Another project
-│       └── ...
-└── CLAUDE.md                 # Agent instructions
+└── your-project/             # Your personal workspace (not shared)
+    ├── project-example1/     # One folder per project
+    │   ├── context.md        # Describe your study here
+    │   ├── data/             # Your raw data
+    │   ├── knowledge/        # Your literature & notes
+    │   ├── literature/       # Drop PDFs/BIB/RIS here for APA reference generation
+    │   └── output/           # Agent-generated results
+    └── project-example2/     # Another project
+        └── ...
 ```
 
 ## General Knowledge
