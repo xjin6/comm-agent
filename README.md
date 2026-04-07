@@ -10,7 +10,7 @@ Built on [Claude Code](https://claude.ai/claude-code), this agent gives research
 comm-agent/
 ├── CLAUDE.md                       # Agent instructions
 ├── general-knowledge/              # Shared theory & methods knowledge base
-├── general-skill/
+├── general-skill/              # Reusable research skills (scraping, analysis, etc.)
 │   ├── skill-weibo-topic-scraper/
 │   ├── skill-xiaohongshu-search-scraper/
 │   ├── skill-douyin-trending-topic-scraper/
