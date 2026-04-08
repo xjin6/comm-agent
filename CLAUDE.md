@@ -70,4 +70,4 @@ Whenever a new file is added to `general-knowledge/` or a new skill is added to 
 
 Whenever any structural change is made to the agent (files moved, renamed, deleted, or behavior updated), always add an entry to `CHANGELOG.md` under `[agent] - YYYY-MM-DD`.
 
-Whenever any file inside a skill folder (`general-skill/skill-*/`) is modified, always update the `Updated` date in that skill's `README.md` to today's date (format: YYYY-MM-DD). The date appears in the line directly below the skill title, e.g. `> **v0.1.0** · Updated 2026-04-07 · \`scraper\``.
+Whenever a skill receives a functional update (new features, behavior changes, bug fixes) — not cosmetic or path-only edits — update the `Updated` date in that skill's `README.md` to today's date (format: YYYY-MM-DD). The date appears in the line directly below the skill title, e.g. `> **v0.1.0** · Updated 2026-04-07 · \`scraper\``.

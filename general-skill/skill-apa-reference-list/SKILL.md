@@ -1,15 +1,15 @@
 ---
 name: skill-apa-reference-list
-description: Generate an APA 7th edition reference list from literature files in your-project/literature/. Use this skill whenever the user wants to format references, generate a bibliography, build a reference list, or asks about APA citations — even if they just say "format my references" or "what's in my literature folder". Supports PDFs, Word documents (.docx), plain text, BibTeX (.bib), and RIS (.ris) files.
+description: Generate an APA 7th edition reference list from literature files in your-project/project-{name}/literature/. Use this skill whenever the user wants to format references, generate a bibliography, build a reference list, or asks about APA citations — even if they just say "format my references" or "what's in my literature folder". Supports PDFs, Word documents (.docx), plain text, BibTeX (.bib), and RIS (.ris) files.
 ---
 
 # APA Reference List Generator
 
-This skill reads all files in `your-project/literature/`, extracts citation metadata from each using up to three methods, picks the most reliable result, and formats a complete APA 7th edition reference list.
+This skill reads all files in `your-project/project-{name}/literature/`, extracts citation metadata from each using up to three methods, picks the most reliable result, and formats a complete APA 7th edition reference list.
 
 ## Step 1 — Scan the literature folder
 
-List all files in `your-project/literature/`. Group them by type:
+List all files in `your-project/project-{name}/literature/`. Group them by type:
 - **Structured formats** (`.bib`, `.ris`) — skip to Step 3, parse fields directly (most reliable, no need for the three-method pipeline)
 - **PDFs** — run the three-method pipeline below
 - **Other documents** (`.docx`, `.txt`, `.md`) — read content and extract metadata directly (skip to Step 3)
@@ -137,13 +137,13 @@ Sort the final list **alphabetically by first author's last name** (or by title 
 
 **In the conversation:** Print the full reference list, numbered for readability.
 
-**Save to file:** Write the unnumbered list to `your-project/output/apa_references.md`:
+**Save to file:** Write the unnumbered list to `your-project/project-{name}/output/apa_references.md`:
 
 ```markdown
 # APA 7th Edition References
 
 Generated: YYYY-MM-DD
-Source folder: your-project/literature/
+Source folder: your-project/project-{name}/literature/
 Total references: N
 
 ---

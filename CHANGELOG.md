@@ -3,7 +3,7 @@
 ## [agent] - 2026-04-08
 
 ### Changed
-- `skill-structural-equation-modeling` v0.1.0 → v0.3.0 — MI optimization loop (auto-adds
+- `skill-structural-equation-modeling` v0.1.0 → v0.2.0 — MI optimization loop (auto-adds
   same-scale residual covariances until CFI ≥ .90), item diagnostic (flags λ < .50),
   measurement quality table (α, ω, CR, AVE, latent correlations), optional APA publication
   tables (demographics, validity, competing models, structural paths, bootstrap mediation),

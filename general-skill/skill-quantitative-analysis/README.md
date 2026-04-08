@@ -14,7 +14,7 @@ End-to-end interactive inferential statistics for survey and tabular data. Guide
 
 ## Output
 
-All results saved to `your-project/output/quantitative-analysis/`:
+All results saved to `your-project/project-{name}/output/quantitative-analysis/`:
 
 | File | Description |
 |------|-------------|
@@ -25,7 +25,7 @@ All results saved to `your-project/output/quantitative-analysis/`:
 
 ## Quick Start
 
-1. Place your data in `your-project/data/` (CSV or Excel)
+1. Place your data in `your-project/project-{name}/data/` (CSV or Excel)
 2. Tell the agent: *"Run stats on my survey data"* or *"Compare groups on satisfaction"*
 
 The agent will guide you through each phase interactively — it always presents recommendations and waits for your approval before running anything.

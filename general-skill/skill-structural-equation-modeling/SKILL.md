@@ -3,7 +3,7 @@ name: skill-structural-equation-modeling
 description: |
   Structural equation modeling (SEM) assistant for communication research. Guides researchers
   step-by-step through EFA, CFA, full SEM, mediation, and moderation analysis using Python.
-  Produces APA-style tables and path diagrams saved to your-project/output/.
+  Produces APA-style tables and path diagrams saved to your-project/project-{name}/output/.
   Trigger this skill when the user:
   - Wants to run SEM, path analysis, CFA, or EFA
   - Mentions latent variables, constructs, factors, or measurement models
@@ -25,25 +25,25 @@ outputs. All analysis uses Python. The scripts live in `scripts/` alongside this
 ## Prerequisites
 
 Before starting, verify:
-1. Read `your-project/context.md` — understand the study's constructs, variables, and hypotheses.
+1. Read `your-project/project-{name}/context.md` — understand the study's constructs, variables, and hypotheses.
    If it's empty or incomplete, ask the user to describe their study first.
-   Also read all files in `your-project/knowledge/` — questionnaires, literature notes, and any
+   Also read all files in `your-project/project-{name}/knowledge/` — questionnaires, literature notes, and any
    other background materials the user has placed there. Use this to understand the theoretical
    grounding of each construct, the source scales, and any prior validation evidence.
-2. Check that a data file exists in `your-project/data/` (CSV or Excel).
+2. Check that a data file exists in `your-project/project-{name}/data/` (CSV or Excel).
 3. Install dependencies from the agent root: `pip install -r requirements.txt`
 
 ---
 
 # Step 1: Load and Inspect Data
 
-Identify the data file in `your-project/data/`. If multiple files exist, use `AskUserQuestion` to
+Identify the data file in `your-project/project-{name}/data/`. If multiple files exist, use `AskUserQuestion` to
 let the user pick one.
 
 Run the data loader:
 ```bash
 python general-skill/skill-structural-equation-modeling/scripts/load_data.py \
-  --file "your-project/data/FILENAME"
+  --file "your-project/project-{name}/data/FILENAME"
 ```
 
 Show the user:
@@ -91,11 +91,11 @@ Ask (use `AskUserQuestion`):
 
 ```bash
 python general-skill/skill-structural-equation-modeling/scripts/efa_analysis.py \
-  --file "your-project/data/FILENAME" \
+  --file "your-project/project-{name}/data/FILENAME" \
   --vars "var1,var2,var3,..." \
   --n-factors N \
   --rotation promax \
-  --output-dir "your-project/output/sem/efa"
+  --output-dir "your-project/project-{name}/output/sem/efa"
 ```
 
 ## EFA Step 3: Interpret and Output
@@ -108,9 +108,9 @@ Present to the user:
 - **Cronbach's α** — reliability for each factor's items
 
 Explain what each factor seems to represent based on which items load on it. Suggest factor names
-based on the study context from `your-project/context.md`.
+based on the study context from `your-project/project-{name}/context.md`.
 
-Outputs saved to `your-project/output/sem/efa/`:
+Outputs saved to `your-project/project-{name}/output/sem/efa/`:
 - `efa_loadings.csv` — full loading matrix
 - `efa_loadings_table.xlsx` — APA-formatted table
 - `scree_plot.png` — scree plot
@@ -127,7 +127,7 @@ using established scales from the literature.
 
 ## CFA Step 1: Specify the Measurement Model
 
-Based on `your-project/context.md` and/or EFA results, propose which items load onto which latent
+Based on `your-project/project-{name}/context.md` and/or EFA results, propose which items load onto which latent
 constructs. Present the proposed model to the user using `AskUserQuestion` to confirm:
 - question: "Here is the proposed measurement model. Does this look right?"
 - Show the model clearly: "Factor1 → [item1, item2, item3]", etc.
@@ -139,10 +139,10 @@ If adjusting, guide the user item by item.
 
 ```bash
 python general-skill/skill-structural-equation-modeling/scripts/sem_analysis.py \
-  --file "your-project/data/FILENAME" \
+  --file "your-project/project-{name}/data/FILENAME" \
   --model-type cfa \
   --model "MODEL_SPEC" \
-  --output-dir "your-project/output/sem/cfa"
+  --output-dir "your-project/project-{name}/output/sem/cfa"
 ```
 
 Model spec format (semopy syntax):
@@ -168,10 +168,10 @@ Construct: [Name]  AVE = .XX  (threshold: ≥ .50)
 To estimate post-deletion AVE, recompute: AVE = mean(λ²) excluding that item.
 
 Then ask the user via `AskUserQuestion`:
-- question: "以上题项的因子载荷偏低（λ < .50），对 AVE 有明显拖累。是否需要删减？"
+- question: "The items above have low factor loadings (λ < .50), dragging AVE down. Would you like to remove any?"
 - options (multiSelect: true — list each flagged item individually, e.g.):
-  - "删除 [item_id]（λ = .XX，删后 AVE ≈ .XX）"
-  - "保留所有题项，不删减"
+  - "Remove [item_id] (λ = .XX, post-deletion AVE ≈ .XX)"
+  - "Keep all items, no deletion"
 
 **Rules for deletion:**
 - Only suggest deletion if λ < .50. Items with .50 ≤ λ < .60 may be noted but not flagged
@@ -225,7 +225,7 @@ just to chase .95 — over-modification inflates fit artificially.
 
 ## CFA Step 4: Output
 
-Outputs saved to `your-project/output/sem/cfa/`:
+Outputs saved to `your-project/project-{name}/output/sem/cfa/`:
 - `cfa_fit_indices.csv` — model fit summary (χ², df, CFI, TLI, RMSEA)
 - `cfa_parameters.xlsx` — APA-formatted factor loadings table (with β, SE, p)
 - `cfa_path_diagram.png` — publication-quality path diagram (300 dpi); see **Path Diagram Specifications** below
@@ -263,7 +263,7 @@ Use this after confirming the measurement model via CFA.
 
 ## SEM Step 1: Specify Structural Paths
 
-Based on `your-project/context.md` hypotheses, propose the structural model. Clearly show:
+Based on `your-project/project-{name}/context.md` hypotheses, propose the structural model. Clearly show:
 - Which latent constructs predict which others (e.g., "MediaUse → Attitude")
 - Direction of all paths
 
@@ -273,10 +273,10 @@ Confirm with user via `AskUserQuestion`.
 
 ```bash
 python general-skill/skill-structural-equation-modeling/scripts/sem_analysis.py \
-  --file "your-project/data/FILENAME" \
+  --file "your-project/project-{name}/data/FILENAME" \
   --model-type sem \
   --model "MODEL_SPEC" \
-  --output-dir "your-project/output/sem/full_sem"
+  --output-dir "your-project/project-{name}/output/sem/full_sem"
 ```
 
 Model spec adds structural paths to the CFA spec:
@@ -301,7 +301,7 @@ Then present:
 
 ## SEM Step 4: Core Outputs
 
-Always save the following to `your-project/output/sem/<model_name>/`:
+Always save the following to `your-project/project-{name}/output/sem/<model_name>/`:
 - `sem_fit_indices.csv` — model fit summary (χ², df, CFI, TLI, RMSEA)
 - `sem_structural_paths.xlsx` — structural path estimates (B, SE, β, z, p)
 - `sem_path_diagram.png` — publication-quality path diagram (300 dpi); see **Path Diagram Specifications** below
@@ -337,32 +337,32 @@ Apply the following rules when generating `sem_path_diagram.png` and `.html`:
 
 After the core outputs are saved, ask the user:
 
-> "模型已运行完成。是否需要生成适合期刊投稿的 APA 格式结果表格？以下表格可供选择："
+> "The model has finished running. Would you like to generate APA-formatted tables for journal submission? The following tables are available:"
 
 Present as a **multiSelect** `AskUserQuestion`:
-- question: "请选择需要生成的 APA 结果表格（可多选）："
+- question: "Select the APA result tables to generate (multi-select):"
 - options:
   - **Table 1 — Sample Demographics**
-    人口统计描述性统计表。列：Variable | n | %。
-    内容：性别、年龄段、教育程度、就业状况、婚恋状况、收入等。
+    Descriptive statistics for demographic variables. Columns: Variable | n | %.
+    Content: gender, age group, education level, employment status, marital status, income, etc.
   - **Table 2 — Descriptive Statistics, Reliability, Convergent Validity, and Latent Correlations**
-    测量模型质量汇总表。列：Construct | k | M | SD | α | ω | CR | AVE | 潜变量相关矩阵。
-    对角线 = √AVE；下三角 = CFA 潜变量相关；上三角留空。
-    注释引用 Fornell & Larcker (1981) 及 Hair et al. (2019)。
+    Measurement model quality summary. Columns: Construct | k | M | SD | α | ω | CR | AVE | latent correlation matrix.
+    Diagonal = √AVE; lower triangle = CFA latent correlations; upper triangle left blank.
+    Notes cite Fornell & Larcker (1981) and Hair et al. (2019).
   - **Table 3 — Competing Measurement Models**
-    竞争性测量模型比较表，用于证明构念区分效度。
-    列：Model | χ²(df) | CFI | TLI | RMSEA | GFI。
-    从假设多因子模型到单因子零模型逐步合并，比较拟合指标变化。
+    Competing measurement model comparison table for demonstrating construct discriminant validity.
+    Columns: Model | χ²(df) | CFI | TLI | RMSEA | GFI.
+    Progressively merge from the hypothesized multi-factor model to a single-factor null model, comparing fit index changes.
   - **Table 4 — Structural Model Results**
-    核心结构路径结果表。列：Path | B | SE | β | z | p | 95% CI | Support | R²。
-    按因变量分组呈现（每组有组标题行）；控制变量路径不列出，在注释说明。
+    Core structural path results. Columns: Path | B | SE | β | z | p | 95% CI | Support | R².
+    Grouped by dependent variable (each group has a header row); control variable paths are not listed but noted in table footnotes.
   - **Table 5 — Bootstrapped Indirect Effects**
-    Bootstrap 中介效应检验表（2,000 次重抽样）。
-    列：Specific Indirect Effect | B | Boot SE | 95% CI | p | β。
-    按自变量分组，含各特定间接路径与总间接效应。
+    Bootstrap mediation test table (2,000 resamples).
+    Columns: Specific Indirect Effect | B | Boot SE | 95% CI | p | β.
+    Grouped by independent variable, including each specific indirect path and total indirect effect.
 
 Generate only the tables the user selects. Save all selected tables to
-`your-project/output/sem/<model_name>/` as `.docx` files using:
+`your-project/project-{name}/output/sem/<model_name>/` as `.docx` files using:
 - APA three-line table format
 - Times New Roman 12pt throughout
 - Landscape orientation (11 × 8.5 inches) for wide tables (Tables 2–5)
@@ -391,11 +391,11 @@ If latent: ask user to specify which items belong to each construct.
 
 ```bash
 python general-skill/skill-structural-equation-modeling/scripts/sem_analysis.py \
-  --file "your-project/data/FILENAME" \
+  --file "your-project/project-{name}/data/FILENAME" \
   --model-type mediation \
   --x "X_VAR" --m "M_VAR" --y "Y_VAR" \
   --bootstrap 5000 \
-  --output-dir "your-project/output/sem/mediation"
+  --output-dir "your-project/project-{name}/output/sem/mediation"
 ```
 
 ## Mediation Step 3: Interpret
@@ -409,7 +409,7 @@ Report:
 
 ## Mediation Step 4: Output
 
-Outputs saved to `your-project/output/sem/mediation/`:
+Outputs saved to `your-project/project-{name}/output/sem/mediation/`:
 - `mediation_results.xlsx` — APA-formatted table of all effects
 - `mediation_path_diagram.png` — path diagram with a, b, c, c' coefficients
 
@@ -432,11 +432,11 @@ Ask via `AskUserQuestion`:
 
 ```bash
 python general-skill/skill-structural-equation-modeling/scripts/sem_analysis.py \
-  --file "your-project/data/FILENAME" \
+  --file "your-project/project-{name}/data/FILENAME" \
   --model-type moderation \
   --x "X_VAR" --w "W_VAR" --y "Y_VAR" \
   --center \
-  --output-dir "your-project/output/sem/moderation"
+  --output-dir "your-project/project-{name}/output/sem/moderation"
 ```
 
 ## Moderation Step 3: Interpret
@@ -450,7 +450,7 @@ Report:
 
 ## Moderation Step 4: Output
 
-Outputs saved to `your-project/output/sem/moderation/`:
+Outputs saved to `your-project/project-{name}/output/sem/moderation/`:
 - `moderation_results.xlsx` — APA-formatted regression table
 - `interaction_plot.png` — interaction plot showing simple slopes
 
@@ -472,7 +472,7 @@ Outputs saved to `your-project/output/sem/moderation/`:
 
 # Important Notes
 
-- Always interpret results in the context of the user's study from `your-project/context.md`.
+- Always interpret results in the context of the user's study from `your-project/project-{name}/context.md`.
 - Report standardized coefficients (β) in tables and diagrams; unstandardized (B) in footnotes.
 - Use APA 7th edition table formatting for all outputs.
 - Remind users that SEM results are correlational — caution against causal language unless

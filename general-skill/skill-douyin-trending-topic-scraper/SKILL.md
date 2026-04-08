@@ -55,7 +55,7 @@ Confirm the plan with the user, then run the script from the **project root**:
 ```bash
 python general-skill/skill-douyin-trending-topic-scraper/scripts/main.py \
   --mode trending \
-  --output-dir "your-project/output/douyin/trending" \
+  --output-dir "your-project/project-{name}/output/douyin/trending" \
   --format both
 ```
 
@@ -64,7 +64,7 @@ python general-skill/skill-douyin-trending-topic-scraper/scripts/main.py \
 python general-skill/skill-douyin-trending-topic-scraper/scripts/main.py \
   --mode topic \
   --topic "话题名称" \
-  --output-dir "your-project/output/douyin/话题名称" \
+  --output-dir "your-project/project-{name}/output/douyin/话题名称" \
   --format both
 ```
 
@@ -72,7 +72,7 @@ python general-skill/skill-douyin-trending-topic-scraper/scripts/main.py \
 ```bash
 python general-skill/skill-douyin-trending-topic-scraper/scripts/main.py \
   --mode all \
-  --output-dir "your-project/output/douyin" \
+  --output-dir "your-project/project-{name}/output/douyin" \
   --format both \
   --delay-min 3 --delay-max 7
 ```

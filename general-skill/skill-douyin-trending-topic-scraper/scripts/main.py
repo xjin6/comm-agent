@@ -7,9 +7,9 @@ Modes:
   all       — fetch trending list + videos for every topic on it
 
 Usage examples:
-  python main.py --mode trending --output-dir "your-project/output/douyin/trending"
-  python main.py --mode topic --topic "元宵节" --output-dir "your-project/output/douyin/元宵节"
-  python main.py --mode all --output-dir "your-project/output/douyin"
+  python main.py --mode trending --output-dir "your-project/project-{name}/output/douyin/trending"
+  python main.py --mode topic --topic "元宵节" --output-dir "your-project/project-{name}/output/douyin/元宵节"
+  python main.py --mode all --output-dir "your-project/project-{name}/output/douyin"
 """
 
 import argparse

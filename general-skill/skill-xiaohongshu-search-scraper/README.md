@@ -16,7 +16,7 @@ A Python scraper for collecting Xiaohongshu note data for academic research. Scr
 
 ## Output
 
-Three relational tables (CSV + JSON) saved to `your-project/output/xiaohongshu/KEYWORD/`:
+Three relational tables (CSV + JSON) saved to `your-project/project-{name}/output/xiaohongshu/KEYWORD/`:
 
 | File | Description | Key Fields |
 |------|-------------|------------|
@@ -48,7 +48,7 @@ python general-skill/skill-xiaohongshu-search-scraper/scripts/main.py \
   --keyword "防晒霜" \
   --cookie "YOUR_COOKIE" \
   --max-pages 10 \
-  --output-dir "your-project/output/xiaohongshu/防晒霜"
+  --output-dir "your-project/project-{name}/output/xiaohongshu/防晒霜"
 ```
 
 ### Options

@@ -40,7 +40,7 @@ pip install -r requirements.txt   # from agent root
 ```bash
 python general-skill/skill-douyin-trending-topic-scraper/scripts/main.py \
   --mode trending \
-  --output-dir "your-project/output/douyin/trending"
+  --output-dir "your-project/project-{name}/output/douyin/trending"
 ```
 
 **Collect videos for one topic:**
@@ -48,14 +48,14 @@ python general-skill/skill-douyin-trending-topic-scraper/scripts/main.py \
 python general-skill/skill-douyin-trending-topic-scraper/scripts/main.py \
   --mode topic \
   --topic "元宵节" \
-  --output-dir "your-project/output/douyin/元宵节"
+  --output-dir "your-project/project-{name}/output/douyin/元宵节"
 ```
 
 **Collect everything (trending list + all topic videos):**
 ```bash
 python general-skill/skill-douyin-trending-topic-scraper/scripts/main.py \
   --mode all \
-  --output-dir "your-project/output/douyin"
+  --output-dir "your-project/project-{name}/output/douyin"
 ```
 
 ### Options

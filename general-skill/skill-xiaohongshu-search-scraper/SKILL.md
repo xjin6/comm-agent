@@ -105,7 +105,7 @@ Use `AskUserQuestion` with `multiSelect: true` for what to collect:
 
 # Step 4: Run the Scraper
 
-Output goes to `your-project/output/xiaohongshu/KEYWORD/`:
+Output goes to `your-project/project-{name}/output/xiaohongshu/KEYWORD/`:
 
 ```bash
 python general-skill/skill-xiaohongshu-search-scraper/scripts/main.py \
@@ -113,7 +113,7 @@ python general-skill/skill-xiaohongshu-search-scraper/scripts/main.py \
   --cookie "USER_COOKIE" \
   --max-pages 10 \
   --sort general \
-  --output-dir "your-project/output/xiaohongshu/KEYWORD" \
+  --output-dir "your-project/project-{name}/output/xiaohongshu/KEYWORD" \
   --format both \
   --delay-min 3 --delay-max 7
 ```

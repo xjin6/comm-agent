@@ -26,10 +26,10 @@ You are helping a researcher perform end-to-end quantitative and inferential sta
 ## Prerequisites
 
 Before starting:
-1. Read `your-project/context.md` to understand the study design, variables, and hypotheses.
-2. Confirm a data file exists in `your-project/data/` (CSV or Excel).
+1. Read `your-project/project-{name}/context.md` to understand the study design, variables, and hypotheses.
+2. Confirm a data file exists in `your-project/project-{name}/data/` (CSV or Excel).
 3. Install dependencies from the agent root: `pip install -r requirements.txt`
-4. All outputs go to `your-project/output/quantitative-analysis/` — create this folder if needed.
+4. All outputs go to `your-project/project-{name}/output/quantitative-analysis/` — create this folder if needed.
 
 ## Word Export (APA Three-Line Table)
 
@@ -50,7 +50,7 @@ export_to_word(
         'Table 2. Correlation Matrix':                     correlation_df,
         'Table 3. Regression Coefficients':                regression_df,
     },
-    filepath='your-project/output/quantitative-analysis/results.docx',
+    filepath='your-project/project-{name}/output/quantitative-analysis/results.docx',
     title='Study Title: Statistical Results',   # shown as document heading
     notes={
         'Table 1. Descriptive Statistics and Reliability':
@@ -453,7 +453,7 @@ ax.set_ylabel('Mean Score')
 ax.set_title('Group Means by Variable')
 ax.legend()
 plt.tight_layout()
-path = 'your-project/output/quantitative-analysis/chart_group_means.png'
+path = 'your-project/project-{name}/output/quantitative-analysis/chart_group_means.png'
 plt.savefig(path, dpi=150)
 plt.show()
 chart_paths.append(path)
@@ -468,7 +468,7 @@ fig, ax = plt.subplots(figsize=(12, 8))
 sns.heatmap(pivot, annot=True, fmt='.2f', cmap='YlOrRd', ax=ax)
 ax.set_title('Mean Scores Heatmap')
 plt.tight_layout()
-path = 'your-project/output/quantitative-analysis/chart_heatmap.png'
+path = 'your-project/project-{name}/output/quantitative-analysis/chart_heatmap.png'
 plt.savefig(path, dpi=150)
 plt.show()
 chart_paths.append(path)
@@ -569,7 +569,7 @@ ax.set_xlabel('Mean Satisfaction Score')
 ax.set_ylabel('Regression β (impact on overall satisfaction)')
 ax.set_title('Satisfaction Driver Priority Matrix')
 plt.tight_layout()
-path = 'your-project/output/quantitative-analysis/chart_satisfaction_priority_matrix.png'
+path = 'your-project/project-{name}/output/quantitative-analysis/chart_satisfaction_priority_matrix.png'
 plt.savefig(path, dpi=150)
 chart_paths.append(path)
 ```
@@ -661,7 +661,7 @@ chart_paths.append(path)
            'T-Tests': ttest_list,           # list of result dicts
            'Regression': regression_coef_df,
        },
-       filepath='your-project/output/quantitative-analysis/quantitative_analysis_results.xlsx',
+       filepath='your-project/project-{name}/output/quantitative-analysis/quantitative_analysis_results.xlsx',
        charts=chart_paths,          # list of PNG paths from Phase 5b
        raw_data=topic_df,           # the filtered DataFrame for this topic
                                     # (or {topic_name: df} for multi-topic exports)
@@ -730,7 +730,7 @@ For option F: produce the qualitative handoff block above and pass to `interview
 - **不适用 (N/A) responses:** These are encoded as NaN, not 0. They are excluded from means, ANOVA, t-tests, and regression. Report N/A rates in the Phase 2 summary so the user knows how many respondents the question applied to.
 - When displaying tables, use pandas DataFrames for clean formatting.
 - If any library is missing, help the user install it: `pip install pandas numpy scipy matplotlib seaborn scikit-learn kmodes statsmodels pingouin openpyxl deep-translator`
-- Save all results files to `your-project/output/quantitative-analysis/`. Create the folder if it doesn't exist.
+- Save all results files to `your-project/project-{name}/output/quantitative-analysis/`. Create the folder if it doesn't exist.
 - The baseline group (group 99, if present) represents the overall population for comparison.
 - For **clustering-based group comparisons** (e.g., comparing clusters on statistical tests after running clustering), the user can bring a labeled dataset from the clustering-analysis skill into this workflow — the group column would be the cluster assignment column.
 
