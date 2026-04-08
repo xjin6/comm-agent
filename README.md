@@ -35,7 +35,7 @@ Standalone, reusable skills for specific research tasks.
 |-------|---------|-------------|
 | [skill-weibo-topic-scraper](./general-skill/skill-weibo-topic-scraper/) | v0.1.0 | Scrape Sina Weibo topic posts, comments, and user profiles |
 | [skill-xiaohongshu-scraper](./general-skill/skill-xiaohongshu-scraper/) | v0.1.0 | Scrape Xiaohongshu (小红书) notes, comments, and user profiles by keyword |
-| [skill-structural-equation-modeling](./general-skill/skill-structural-equation-modeling/) | v0.1.0 | Specify, estimate, and interpret SEM models including CFA and path analysis |
+| [skill-structural-equation-modeling](./general-skill/skill-structural-equation-modeling/) | v0.3.0 | EFA / CFA / Full SEM / Mediation / Moderation. Features: (1) reads `your-project/knowledge/` for study background; (2) item diagnostic — flags λ < .50 items that drag down AVE and asks whether to delete; (3) auto-optimizes fit via modification indices (same-scale residual covariances only, max 10) until CFI ≥ .90; (4) always outputs measurement quality table (α, ω, CR, AVE, latent correlations); (5) optionally generates 5 APA-format publication tables (demographics, validity, competing models, structural paths, bootstrap mediation) |
 | [skill-apa-reference-list](./general-skill/skill-apa-reference-list/) | v0.1.0 | Read literature files and generate an APA 7th edition reference list |
 | [skill-quantitative-analysis](./general-skill/skill-quantitative-analysis/) | v1.2 | End-to-end inferential statistics: ANOVA, t-tests, chi-squared, regression, and descriptive analysis on survey data |
 

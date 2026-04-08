@@ -1,6 +1,30 @@
 # Changelog
 
-## [agent] - 2026-04-01
+## [agent] - 2026-04-08
+
+### Changed
+- `skill-structural-equation-modeling` v0.3.0 — multiple enhancements:
+  - **Prerequisites**: agent now reads all files in `your-project/knowledge/` (questionnaires,
+    literature notes) before starting, to ground analysis in study background
+  - **CFA Step 2b** (new): item diagnostic — flags any item with λ < .50, shows estimated
+    post-deletion AVE, asks user via multiSelect whether to delete or retain; protects
+    constructs from dropping below 3 indicators
+  - **Auto MI optimization loop**: if CFI < .90 after initial fit, automatically adds same-scale
+    residual covariances one at a time (highest MI first) until CFI ≥ .90 or 10 additions reached;
+    applies to both CFA and full SEM
+  - **Measurement quality table**: CFA and SEM now always output `cfa/sem_measurement_quality.docx`
+    with k, M, SD, α (Cronbach), ω (McDonald's), CR, AVE, and latent correlation matrix
+  - **SEM Step 5** (new): after core outputs, asks user via multiSelect which APA publication
+    tables to generate (Table 1 Demographics, Table 2 Validity, Table 3 Competing Models,
+    Table 4 Structural Paths, Table 5 Bootstrap Indirect Effects); saves as .docx landscape
+  - **Path diagram specs updated**: black borders, white fill (no color); solid lines = significant
+    (p < .05), dashed = non-significant; direct IV→DV paths routed as arcs/bent lines to avoid
+    occluding mediator boxes; both `.png` (300 dpi) and `.html` outputs
+  - **Frontmatter**: removed SRMR (not available in semopy); replaced with GFI in fit index list
+
+---
+
+
 
 ### Added
 - `skill-xiaohongshu-scraper` v0.1.0 — scrape notes, comments, and user profiles
