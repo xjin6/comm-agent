@@ -8,7 +8,7 @@ description: |
   - Wants to run SEM, path analysis, CFA, or EFA
   - Mentions latent variables, constructs, factors, or measurement models
   - Wants to test mediation (indirect effects) or moderation (interaction effects)
-  - Needs model fit indices (CFI, RMSEA, SRMR, TLI, χ²)
+  - Needs model fit indices (CFI, RMSEA, TLI, GFI, χ²)
   - Has survey data with multi-item scales to validate or analyze
   - Mentions scale reliability, factor loadings, or structural paths
   - Wants to know if variables mediate or moderate a relationship
@@ -27,6 +27,9 @@ outputs. All analysis uses Python. The scripts live in `scripts/` alongside this
 Before starting, verify:
 1. Read `your-project/context.md` — understand the study's constructs, variables, and hypotheses.
    If it's empty or incomplete, ask the user to describe their study first.
+   Also read all files in `your-project/knowledge/` — questionnaires, literature notes, and any
+   other background materials the user has placed there. Use this to understand the theoretical
+   grounding of each construct, the source scales, and any prior validation evidence.
 2. Check that a data file exists in `your-project/data/` (CSV or Excel).
 3. Install dependencies from the agent root: `pip install -r requirements.txt`
 
@@ -148,28 +151,108 @@ Factor1 =~ item1 + item2 + item3
 Factor2 =~ item4 + item5 + item6
 ```
 
-## CFA Step 3: Evaluate Fit
+## CFA Step 2b: Item Diagnostic — Flag Weak Indicators
+
+Immediately after fitting, inspect the standardized loadings and compute per-construct AVE.
+For each construct, identify any item where **λ < .50** (i.e., the item explains less than 25%
+of its factor's variance), as these are the primary drivers of low AVE.
+
+Present a diagnostic summary to the user for each flagged item:
+
+```
+Construct: [Name]  AVE = .XX  (threshold: ≥ .50)
+  ⚠ [item_id]  λ = .XX  — this item is pulling AVE down.
+     Removing it would raise AVE to approximately .XX.
+```
+
+To estimate post-deletion AVE, recompute: AVE = mean(λ²) excluding that item.
+
+Then ask the user via `AskUserQuestion`:
+- question: "以上题项的因子载荷偏低（λ < .50），对 AVE 有明显拖累。是否需要删减？"
+- options (multiSelect: true — list each flagged item individually, e.g.):
+  - "删除 [item_id]（λ = .XX，删后 AVE ≈ .XX）"
+  - "保留所有题项，不删减"
+
+**Rules for deletion:**
+- Only suggest deletion if λ < .50. Items with .50 ≤ λ < .60 may be noted but not flagged
+  for deletion unless the user asks.
+- Never suggest deleting an item that would leave a construct with fewer than 3 indicators,
+  unless the construct originally had only 3 items (in which case warn the user that deletion
+  risks under-identification).
+- If the user chooses to delete one or more items, refit the CFA with the updated spec and
+  re-report fit indices and AVE before proceeding to Step 3.
+- If the user chooses to retain all items, continue to Step 3 with the original model.
+  Note in the output that AVE < .50 will be addressed via the Hair et al. (2019) fallback
+  (CR > .70 as acceptable alternative) when generating Table 2.
+
+## CFA Step 3: Evaluate Fit and Auto-Optimize via Modification Indices
 
 Present fit indices with benchmarks:
 
-| Index | Result | Good Fit |
-|-------|--------|----------|
-| χ² (df, p) | — | p > .05 (sensitive to N) |
-| CFI | — | ≥ .95 |
-| TLI | — | ≥ .95 |
-| RMSEA [90% CI] | — | ≤ .06 |
-| SRMR | — | ≤ .08 |
+| Index | Result | Minimum Acceptable | Good Fit |
+|-------|--------|--------------------|----------|
+| χ² (df, p) | — | — | p > .05 (sensitive to N) |
+| CFI | — | ≥ .90 | ≥ .95 |
+| TLI | — | ≥ .90 | ≥ .95 |
+| RMSEA [90% CI] | — | ≤ .08 | ≤ .06 |
 
-If fit is poor (any index misses benchmark), show the top 5 modification indices and explain
-what they suggest. Ask: "Would you like to free any of these parameters to improve fit?"
+**If CFI < .90, automatically run the MI optimization loop:**
+
+1. Retrieve modification indices from semopy:
+   ```python
+   mis = semopy.calc_mi(mod)
+   # mis is a DataFrame with columns: lval, op, rval, mi (modification index value)
+   ```
+2. Sort by `mi` descending. Consider only residual covariance suggestions (`op == '~~'`)
+   where **both variables belong to the same latent construct** (same-scale pairs only).
+   Do NOT add cross-construct residual covariances — that would compromise discriminant validity.
+3. Add the highest-MI same-scale residual covariance to the model spec, refit, and check CFI.
+4. Repeat — adding one parameter per iteration — until **CFI ≥ .90** or no more
+   same-scale MI candidates remain.
+5. Cap at a maximum of **10 added residual covariances** across all constructs to prevent
+   over-fitting. If CFI still < .90 after 10 additions, stop and report the best result reached.
+
+**After the loop, report to the user:**
+- Final fit indices
+- List of all residual covariances added (e.g., "Added: C2r1 ~~ C2r2, C4r3 ~~ C4r4")
+- Theoretical justification note: "These covariances reflect shared method variance between
+  adjacent or similarly worded items within the same scale, which is theoretically defensible."
+
+**If CFI ≥ .90 but < .95**, note this as acceptable fit and continue. Do not keep adding MIs
+just to chase .95 — over-modification inflates fit artificially.
+
+**If fit is already ≥ .90 on first run**, skip the loop entirely and proceed.
 
 ## CFA Step 4: Output
 
 Outputs saved to `your-project/output/sem/cfa/`:
-- `cfa_fit_indices.csv` — model fit summary
+- `cfa_fit_indices.csv` — model fit summary (χ², df, CFI, TLI, RMSEA)
 - `cfa_parameters.xlsx` — APA-formatted factor loadings table (with β, SE, p)
-- `cfa_path_diagram.png` — path diagram with standardized loadings
-- `cfa_reliability.csv` — Cronbach's α and AVE per construct
+- `cfa_path_diagram.png` — publication-quality path diagram (300 dpi); see **Path Diagram Specifications** below
+- `cfa_path_diagram.html` — interactive version of the same diagram for exploration
+- `cfa_measurement_quality.docx` — **APA-formatted Word table** containing per-construct:
+  - k (number of items), M, SD
+  - Cronbach's α, McDonald's ω
+  - CR (composite reliability = (Σλ)² / [(Σλ)² + Σ(1−λ²)])
+  - AVE (average variance extracted = Σλ² / k), √AVE on diagonal
+  - Latent correlation matrix (lower triangle) from the CFA model
+  - Table note citing Fornell & Larcker (1981) for AVE ≥ .50 criterion and
+    Hair et al. (2019) for the CR > .70 fallback when AVE < .50
+
+### Path Diagram Specifications (CFA)
+
+Apply the following rules when generating `cfa_path_diagram.png` and `.html`:
+
+1. **Box style** — all latent construct ovals and observed item rectangles use a black border
+   with white fill. No color fills, gradients, or shading of any kind.
+2. **Path lines**:
+   - **Solid line** — factor loading is statistically significant (p < .05)
+   - **Dashed line** — factor loading is non-significant (p ≥ .05)
+   - Line color: black only
+3. **Labels** — standardized loadings (β) displayed on each path, rounded to two decimal places.
+4. **Layout** — latent constructs arranged in a single row or column; items fan out from their
+   factor. Avoid path crossings where possible.
+5. **Resolution** — save `.png` at 300 dpi minimum for print submission.
 
 ---
 
@@ -203,19 +286,89 @@ Factor2 =~ item4 + item5 + item6
 Factor2 ~ Factor1
 ```
 
-## SEM Step 3: Evaluate and Interpret
+## SEM Step 3: Evaluate, Optimize, and Interpret
 
-Report the same fit indices as CFA. Then present:
-- Structural path coefficients (β, SE, z, p) — are hypothesized paths significant?
+Report the same fit indices as CFA (CFI, TLI, RMSEA). Apply the **same MI optimization loop**
+described in CFA Step 3 if CFI < .90:
+- Only add residual covariances within the same scale
+- Cap at 10 total additions
+- Stop once CFI ≥ .90
+
+Then present:
+- Structural path coefficients (B, SE, β, z, p, 95% CI) — are hypothesized paths significant?
 - R² for each endogenous construct — how much variance is explained?
+- List any MI-based modifications made, with theoretical justification
 
-## SEM Step 4: Output
+## SEM Step 4: Core Outputs
 
-Outputs saved to `your-project/output/sem/full_sem/`:
-- `sem_fit_indices.csv`
-- `sem_structural_paths.xlsx` — APA-formatted structural paths table
-- `sem_path_diagram.png` — full path diagram with loadings and structural paths
+Always save the following to `your-project/output/sem/<model_name>/`:
+- `sem_fit_indices.csv` — model fit summary (χ², df, CFI, TLI, RMSEA)
+- `sem_structural_paths.xlsx` — structural path estimates (B, SE, β, z, p)
+- `sem_path_diagram.png` — publication-quality path diagram (300 dpi); see **Path Diagram Specifications** below
+- `sem_path_diagram.html` — interactive version for exploration
 - `sem_r_squared.csv` — R² for each endogenous construct
+- `sem_measurement_quality.docx` — APA Word table: k, M, SD, α, ω, CR, AVE, latent correlation
+  matrix (√AVE on diagonal, lower triangle = CFA latent correlations)
+
+### Path Diagram Specifications (SEM)
+
+Apply the following rules when generating `sem_path_diagram.png` and `.html`:
+
+1. **Box style** — all latent construct ovals and observed item rectangles use a black border
+   with white fill. No color fills, gradients, or shading of any kind.
+2. **Path lines**:
+   - **Solid line** — path is statistically significant (p < .05)
+   - **Dashed line** — path is non-significant (p ≥ .05)
+   - Line color: black only
+3. **Labels** — standardized coefficients (β) on structural paths; standardized loadings on
+   measurement paths; all rounded to two decimal places.
+4. **Direct IV → DV paths** (when the model includes a direct effect from an exogenous
+   variable to the final outcome, bypassing mediators):
+   - Route this path as a **curved arc** (concave above or below the diagram) or as a
+     **right-angle bent line** that travels above or below the main diagram area.
+   - The arc/bent line must **not cross or overlap** mediator boxes or the mediating paths
+     between them. Choose above vs. below based on whichever side is less crowded.
+5. **Layout** — place exogenous constructs on the left, mediators in the middle, endogenous
+   constructs on the right. Keep the main causal flow left-to-right so direct-path arcs
+   have a clear route around the diagram.
+6. **Resolution** — save `.png` at 300 dpi minimum for print submission.
+
+## SEM Step 5: APA Publication Tables (Optional — Ask First)
+
+After the core outputs are saved, ask the user:
+
+> "模型已运行完成。是否需要生成适合期刊投稿的 APA 格式结果表格？以下表格可供选择："
+
+Present as a **multiSelect** `AskUserQuestion`:
+- question: "请选择需要生成的 APA 结果表格（可多选）："
+- options:
+  - **Table 1 — Sample Demographics**
+    人口统计描述性统计表。列：Variable | n | %。
+    内容：性别、年龄段、教育程度、就业状况、婚恋状况、收入等。
+  - **Table 2 — Descriptive Statistics, Reliability, Convergent Validity, and Latent Correlations**
+    测量模型质量汇总表。列：Construct | k | M | SD | α | ω | CR | AVE | 潜变量相关矩阵。
+    对角线 = √AVE；下三角 = CFA 潜变量相关；上三角留空。
+    注释引用 Fornell & Larcker (1981) 及 Hair et al. (2019)。
+  - **Table 3 — Competing Measurement Models**
+    竞争性测量模型比较表，用于证明构念区分效度。
+    列：Model | χ²(df) | CFI | TLI | RMSEA | GFI。
+    从假设多因子模型到单因子零模型逐步合并，比较拟合指标变化。
+  - **Table 4 — Structural Model Results**
+    核心结构路径结果表。列：Path | B | SE | β | z | p | 95% CI | Support | R²。
+    按因变量分组呈现（每组有组标题行）；控制变量路径不列出，在注释说明。
+  - **Table 5 — Bootstrapped Indirect Effects**
+    Bootstrap 中介效应检验表（2,000 次重抽样）。
+    列：Specific Indirect Effect | B | Boot SE | 95% CI | p | β。
+    按自变量分组，含各特定间接路径与总间接效应。
+
+Generate only the tables the user selects. Save all selected tables to
+`your-project/output/sem/<model_name>/` as `.docx` files using:
+- APA three-line table format
+- Times New Roman 12pt throughout
+- Landscape orientation (11 × 8.5 inches) for wide tables (Tables 2–5)
+- Portrait orientation for Table 1
+
+After generating, list the saved file paths so the user can open them directly.
 
 ---
 
@@ -309,12 +462,15 @@ Outputs saved to `your-project/output/sem/moderation/`:
   or using a different estimator (MLR instead of ML)
 - **Negative variance (Heywood case)** — flag the problematic indicator, suggest removing it
   or constraining the variance
-- **Poor fit** — show modification indices, explain each suggestion, let user decide
+- **Poor fit (CFI < .90)** — automatically run MI optimization loop (same-scale residual
+  covariances only, max 10 additions). Report all added parameters and their MI values.
+  If CFI still < .90 after exhausting same-scale candidates, flag to user and ask whether
+  to consider cross-scale MIs (with strong theoretical caution) or simplify the model
 - **Small sample** (N < 200) — warn that SEM requires adequate sample size; suggest bootstrapping
 
 ---
 
-## Important Notes
+# Important Notes
 
 - Always interpret results in the context of the user's study from `your-project/context.md`.
 - Report standardized coefficients (β) in tables and diagrams; unstandardized (B) in footnotes.
