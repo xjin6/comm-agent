@@ -57,6 +57,37 @@ Always read `your-project/project-{name}/context.md` at the start of any analysi
 
 All skill output paths should use `your-project/project-{name}/output/` as the base.
 
+## Git Convention
+
+When making commits in this repo:
+
+1. **Always set both Author and Committer explicitly** — never rely on the local git config, which may leak machine hostnames or corporate emails:
+   ```bash
+   GIT_COMMITTER_NAME="your-github-id" GIT_COMMITTER_EMAIL="your@email.com" \
+     git commit --author="your-github-id <your@email.com>" -m "..."
+   ```
+2. **Use your GitHub account ID as the author name** — the same ID that appears in the repo's remote URL (e.g. `github.com/your-github-id`)
+3. **Match the gh account to the remote URL** before pushing:
+   ```bash
+   git remote get-url origin   # check which account owns the repo
+   gh auth switch --user your-github-id
+   git push origin main
+   ```
+4. **Do not add Claude co-author trailers** — no `Co-Authored-By: Claude` lines in commit messages
+
+## Skill Installation Convention
+
+Skills in `general-skill/` must be installed by symlinking into the global `~/.claude/skills/` directory — never copied, and never installed in a project-level `.claude/` folder:
+
+```bash
+ln -sf /absolute/path/to/comm-agent/general-skill/skill-{name} ~/.claude/skills/skill-{name}
+```
+
+This way:
+- The skill is available globally across all Claude Code projects on your machine
+- Any edits to the skill source are reflected immediately without reinstalling
+- The symlink name must match the folder name exactly
+
 ## Maintenance Rule
 
 Whenever a new file is added to `general-knowledge/` or a new skill is added to `general-skill/`, always update:
