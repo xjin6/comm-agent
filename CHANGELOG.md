@@ -6,6 +6,11 @@
 - `your-project/` cleared — removed all sample/test project folders; folder is now intentionally empty
 - `README.md` updated — Getting Started section explicitly states `your-project/` is empty by design; directory tree simplified to a single `project-{name}/` template
 - Removed `your-project/README.md` — project creation flow consolidated into root README only
+- `CLAUDE.md` reviewed and tightened:
+  - Added fallback for empty `general-knowledge/` — answer from training knowledge if no file exists
+  - Added empty-project-folder handling — agent prompts user to create a project when `your-project/` is empty
+  - Removed redundant folder structure listing from "How to Use"; now references Project Convention section
+  - Maintenance Rule: explicitly names `## What's Available` as the section to update; clarifies `requirements.txt` format as Python pip (`package>=version`)
 
 ---
 

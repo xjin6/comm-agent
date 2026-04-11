@@ -23,16 +23,11 @@ Available skills:
 
 ## How to Use
 
-**For theory or methods questions** — read the relevant file in `general-knowledge/` before answering.
+**For theory or methods questions** — read the relevant file in `general-knowledge/` before answering. If no relevant file exists, answer directly from training knowledge.
 
 **For a specific task** — read the `SKILL.md` inside the relevant skill folder and follow its instructions.
 
-**For your own project** — each project lives in its own folder under `your-project/`:
-- `your-project/project-{name}/data/` — raw data files
-- `your-project/project-{name}/knowledge/` — your literature, PDFs, notes
-- `your-project/project-{name}/literature/` — drop literature files here for APA reference generation
-- `your-project/project-{name}/output/` — agent writes results here
-- `your-project/project-{name}/context.md` — describe your study, variables, and hypotheses
+**For your own project** — see the Project Convention section below. Each project lives in its own folder under `your-project/`.
 
 ## Project Convention
 
@@ -53,7 +48,9 @@ your-project/project-{name}/
 ### Switching projects
 At the start of a conversation, if the user mentions a project name (e.g. "I'm working on tiktok"), identify the corresponding folder `your-project/project-{name}/` and read its `context.md` before doing anything else.
 
-If no project is specified and multiple project folders exist, ask: "Which project are you working on? I found: [list]."
+If no project is specified:
+- If `your-project/` is empty, say: "It looks like you don't have a project yet. What would you like to call it? (e.g. `tiktok`, `weibo-2025`)"
+- If multiple project folders exist, ask: "Which project are you working on? I found: [list]."
 
 ### Context
 Always read `your-project/project-{name}/context.md` at the start of any analysis task. If it is empty or incomplete, ask the user about their study — research question, data, variables, hypotheses — and write their answers into `context.md` for them. Do not make them edit it manually.
@@ -63,9 +60,9 @@ All skill output paths should use `your-project/project-{name}/output/` as the b
 ## Maintenance Rule
 
 Whenever a new file is added to `general-knowledge/` or a new skill is added to `general-skill/`, always update:
-1. The relevant section in this file (`CLAUDE.md`)
+1. The skill list in the `## What's Available` section of this file (`CLAUDE.md`)
 2. The `README.md` at the project root
-3. The `requirements.txt` at the project root — append any new dependencies under a comment with the skill name
+3. The `requirements.txt` at the project root — append any new Python pip dependencies (format: `package>=version`) under a comment with the skill name
 4. The `CHANGELOG.md` at the project root — add an entry under the relevant skill or knowledge section
 
 Whenever any structural change is made to the agent (files moved, renamed, deleted, or behavior updated), always add an entry to `CHANGELOG.md` under `[agent] - YYYY-MM-DD`.
