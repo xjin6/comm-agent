@@ -1,5 +1,13 @@
 # Changelog
 
+## [agent] - 2026-04-12 (2)
+
+### Added
+- `CLAUDE.md` — Git Convention section: require explicit Author+Committer via env vars, GitHub ID as author name, correct gh account switching, no Claude co-author trailers
+- `CLAUDE.md` — Skill Installation Convention section: symlink `general-skill/skill-{name}` → `~/.claude/skills/skill-{name}` only; no project-level installs
+
+---
+
 ## [agent] - 2026-04-12
 
 ### Changed
