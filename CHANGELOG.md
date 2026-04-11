@@ -1,5 +1,14 @@
 # Changelog
 
+## [agent] - 2026-04-12
+
+### Changed
+- `your-project/` cleared — removed all sample/test project folders; folder is now intentionally empty
+- `README.md` updated — Getting Started section explicitly states `your-project/` is empty by design; directory tree simplified to a single `project-{name}/` template
+- Removed `your-project/README.md` — project creation flow consolidated into root README only
+
+---
+
 ## [agent] - 2026-04-08
 
 ### Changed

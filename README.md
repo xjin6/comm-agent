@@ -17,15 +17,13 @@ comm-agent/
 │   ├── skill-structural-equation-modeling/
 │   ├── skill-quantitative-analysis/
 │   └── skill-apa-reference-list/
-└── your-project/                   # Your personal workspace (not shared)
-    ├── project-example-1/          # One folder per project
-    │   ├── context.md              # Describe your study here
-    │   ├── data/                   # Your raw data
-    │   ├── knowledge/              # Your literature & notes
-    │   ├── literature/             # Drop PDFs/BIB/RIS here for APA reference generation
-    │   └── output/                 # Agent-generated results
-    └── project-example-2/          # Another project
-        └── ...
+└── your-project/                   # Your personal workspace — intentionally empty
+    └── project-{name}/             # Created by the agent when you start a project
+        ├── context.md              # Describe your study here
+        ├── data/                   # Your raw data
+        ├── knowledge/              # Your literature & notes
+        ├── literature/             # Drop PDFs/BIB/RIS here for APA reference generation
+        └── output/                 # Agent-generated results
 ```
 
 ## General Knowledge
@@ -51,7 +49,9 @@ Standalone, reusable skills for specific research tasks.
 
 ## Getting Started
 
-1. Tell the agent: *"Create a project called [name]"* — it will create `your-project/project-{name}/` with all the required folders
+`your-project/` is intentionally empty — create your own project to get started:
+
+1. Tell the agent: *"Create a project called [name]"* — it will create `your-project/project-{name}/` with the four standard folders (`data/`, `knowledge/`, `literature/`, `output/`) and an empty `context.md`
 2. Describe your study and the agent will fill in `context.md` for you
 3. Drop your data into `your-project/project-{name}/data/`
 4. Drop literature files (PDF, DOCX, BIB, RIS, TXT) into `your-project/project-{name}/literature/`
