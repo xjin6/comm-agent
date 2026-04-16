@@ -55,6 +55,8 @@ A modular end-to-end research agent that helps communication researchers go from
 
 **Xin Jin** — xjin6@outlook.com
 
+**Sha Sarah QIU** — sarahq2025@gmail.com
+
 ## License
 
 MIT

@@ -33,15 +33,15 @@ present your recommendation, explain why, and wait for the user to approve befor
 
 When this skill is triggered, immediately tell the user what they need to prepare:
 
-> "在开始之前，请确认以下文件已放置在对应的文件夹中：
+> "Before we begin, please make sure the following files are in the right folders:
 >
-> 1. **数据文件** → `your-project/data/`（支持 .csv 或 .xlsx）
-> 2. **问卷 / 量表说明** → `your-project/knowledge/`（.pdf、.docx、.md 均可）
->    — 包含每个构念的题项列表、来源量表名称、理论依据
-> 3. **研究背景** → `your-project/context.md`（研究问题、假设、构念列表）
->    — 如果文件为空，我会引导你逐步填写，不需要自己手动编辑
+> 1. **Data file** → `your-project/data/` (.csv or .xlsx)
+> 2. **Questionnaire / scale documentation** → `your-project/knowledge/` (.pdf, .docx, or .md)
+>    — include item lists, source scale names, and theoretical rationale for each construct
+> 3. **Study background** → `your-project/context.md` (research questions, hypotheses, construct list)
+>    — if the file is empty, I will guide you through filling it in; no need to edit it manually
 >
-> 文件准备好后，请告诉我，我将开始加载数据。"
+> Once everything is ready, let me know and I will start loading the data."
 
 Then read `your-project/context.md` and all files in `your-project/knowledge/`. If `context.md`
 is empty or incomplete, ask the user about their study through conversation — research question,
@@ -74,16 +74,17 @@ After loading, scan `your-project/knowledge/` and the column names to identify l
 demographic/control variables (e.g., age, gender, education, income, employment, marital
 status, media use frequency). Present your best guess to the user:
 
-> "我根据问卷说明和列名，推测以下变量为人口统计学控制变量：
+> "Based on your questionnaire files and column names, I infer the following variables are
+> demographic/control variables:
 >
-> [列出推测的控制变量及对应列名]
+> [list inferred control variables and their column names]
 >
-> 请确认或修改。"
+> Please confirm or adjust."
 
 Ask via `AskUserQuestion` (multiSelect: true):
 - List each inferred control variable as a checkbox option
-- Include "不使用控制变量" as an option
-- Include "Other — 我来手动指定" as an option
+- Include "No control variables" as an option
+- Include "Other — I will specify manually" as an option
 
 Store confirmed controls as `CTRL_MAP = {display_name: column_name, ...}`. These will be
 mean-centered and regressed on all endogenous latent constructs in all subsequent models,
@@ -94,12 +95,12 @@ but suppressed from output tables (mentioned in table Notes instead).
 ## Step 2: Choose Analysis Entry Point
 
 Use `AskUserQuestion`:
-- question: "你想从哪个环节开始分析？"
+- question: "Which stage would you like to start from?"
 - options:
-  - "EFA — 探索性因子分析（量表结构未知，或需要先探索题项归因）"
-  - "CFA — 验证性因子分析（已知量表结构，验证测量模型）"
-  - "Mediation — 中介分析（在已验证测量模型的基础上检验中介效应）"
-  - "Moderation — 调节分析（检验调节效应，需已完成 SEM 或 CFA）"
+  - "EFA — Exploratory Factor Analysis (scale structure unknown, or need to explore item clustering)"
+  - "CFA — Confirmatory Factor Analysis (scale structure known, validate the measurement model)"
+  - "Mediation — Mediation analysis (test indirect effects after validating the measurement model)"
+  - "Moderation — Moderation analysis (test interaction effects; requires a completed SEM or CFA)"
 
 For most studies using established scales, the recommended path is:
 **CFA → confirm measurement model → Mediation → Moderation (if needed)**
@@ -116,18 +117,18 @@ for newly developed scales, adapted items, or when the user is unsure how items 
 ## EFA Step 1: Scope
 
 Ask via `AskUserQuestion`:
-- question: "你想对哪些构念进行 EFA？"
+- question: "Which constructs would you like to include in the EFA?"
 - options:
-  - "全部构念 — 所有题项一起跑 EFA"
-  - "指定构念 — 我来选择哪些构念参与"
+  - "All constructs — run EFA on the full item pool"
+  - "Selected constructs — I will choose which ones to include"
 
-If "指定构念", present all identified construct names as checkboxes (multiSelect: true).
+If "Selected constructs", present all identified construct names as checkboxes (multiSelect: true).
 
 ## EFA Step 2: Configure
 
 For each selected construct (or the full item pool), ask:
-1. "提取因子数量？" — options: "由数据决定（平行分析）" / "2" / "3" / "4" / "5" / "我自己指定"
-2. "旋转方式？" — options: "斜交旋转 Promax（推荐——构念间通常相关）" / "正交旋转 Varimax（假设构念不相关）"
+1. "How many factors to extract?" — options: "Let the data decide (parallel analysis)" / "2" / "3" / "4" / "5" / "I will specify"
+2. "Rotation method?" — options: "Oblique / Promax (Recommended — constructs are likely correlated)" / "Orthogonal / Varimax (assumes uncorrelated constructs)"
 
 ## EFA Step 3: Run and Interpret
 
@@ -146,7 +147,7 @@ Save outputs to `your-project/output/sem/efa/`:
 - `scree_plot.png` — scree plot for each construct analyzed
 
 Ask the user:
-> "EFA 结果是否符合你对量表结构的预期？是否需要调整（如删题、合���因子），然后进入 CFA 验证？"
+> "Do the EFA results match your expectations for the scale structure? Would you like to make any adjustments (e.g., delete items, merge factors) before moving on to CFA?"
 
 ⛔ **Do not proceed to CFA until the user confirms the EFA factor structure.**
 
@@ -160,10 +161,10 @@ Run CFA before proceeding to mediation or moderation.
 ## CFA Step 1: Per-Scale Internal Check (Optional)
 
 Before running the full multi-construct CFA, ask:
-- question: "是否需要逐量表单���跑一次 CFA，检查各构念内部结构是否良好？"
+- question: "Would you like to run a quick single-construct CFA for each scale first, to check internal structure before the full measurement model?"
 - options:
-  - "是的，先逐量表检查（推荐用于新量表或改编量表）"
-  - "跳过，直接进行全体构念的 CFA（推荐用于经典量表）"
+  - "Yes — run per-scale checks first (recommended for new or adapted scales)"
+  - "Skip — go straight to the full measurement model CFA (recommended for established scales)"
 
 If the user selects per-scale check:
 - Fit a one-factor CFA for each construct separately using its items
@@ -184,8 +185,8 @@ ConstructC =~ [item7, item8, item9]
 ```
 
 Confirm via `AskUserQuestion`:
-- question: "以下是完整测量模型（全部构念放入同一个 CFA）。是否正确？"
-- options: "是，开始���行" / "需要调整"
+- question: "Here is the proposed full measurement model (all constructs in a single CFA). Does this look correct?"
+- options: "Yes, run it" / "I need to adjust"
 
 If adjusting, guide the user item by item.
 
@@ -196,14 +197,14 @@ AVE = mean(λ²). For each construct, identify items where **λ < .50**:
 
 ```
 Construct: [Name]  AVE = .XX  (threshold: ≥ .50)
-  ⚠ [item_id]  λ = .XX  — 拖低 AVE
-     删除该题后 AVE ≈ .XX
+  ⚠ [item_id]  λ = .XX  — pulling AVE down
+     Estimated AVE after deletion ≈ .XX
 ```
 
 Ask via `AskUserQuestion` (multiSelect: true):
-- question: "以下题项因子载荷偏低（λ < .50），是否需要删减？"
-- List each flagged item as an individual option: "删除 [item_id]（λ = .XX，删后 AVE ≈ .XX）"
-- Include: "保留所有题项，不删减"
+- question: "The following items have low factor loadings (λ < .50) and are dragging down AVE. Would you like to remove any of them?"
+- List each flagged item as an individual option: "Remove [item_id] (λ = .XX; estimated AVE after deletion ≈ .XX)"
+- Include: "Keep all items — no deletions"
 
 **Deletion rules:**
 - Only flag for deletion if λ < .50. Items with .50 ≤ λ < .60 may be noted but not flagged.
@@ -263,7 +264,7 @@ Save to `your-project/output/sem/cfa/`:
 - `cfa_loadings.xlsx` — standardized factor loadings (β, SE, p) for all items
 - `cfa_path_diagram.png` / `.html` — path diagram (see Path Diagram Specs below)
 
-**Table 2 — Descriptive Statistics, Reliability, and Validity** (`.docx`, APA 三线表):
+**Table 2 — Descriptive Statistics, Reliability, and Validity** (`.docx`, APA three-line table):
 Columns: Construct | k | M | SD | α | ω | CR | AVE | [latent correlation matrix]
 - Diagonal = √AVE
 - Lower triangle = CFA latent factor correlations (φ) from `inspect(std_est=True)`
@@ -300,7 +301,7 @@ via semopy; indirect effects via parametric bootstrap (5,000 resamples).
 ## Mediation Step 1: Choose PROCESS Model Template
 
 Present the model topology options via `AskUserQuestion`:
-- question: "你的中介模型结构是哪种？"
+- question: "What is the structure of your mediation model?"
 - options (with brief visual labels):
   - **Model 4** — Simple mediation: X → M → Y
   - **Model 6** — Serial mediation: X → M1 → M2 → Y (two sequential mediators)
@@ -394,7 +395,7 @@ Present structural results to the user:
 - Summary of MI modifications (if any)
 - Indirect effects with 95% bootstrap CIs
 
-Ask: "以上是结构模型结果。模型是否符合你的预期？是否需要调整路径规格，然后重跑？"
+Ask: "Here are the structural model results. Does the model match your expectations? Would you like to adjust any path specifications and rerun?"
 
 ⛔ **Do not generate final output tables until the user confirms the model.**
 
@@ -464,8 +465,8 @@ Compute original-scale W level values: Low/Mean/High = W_mean ± 1SD (for axis l
 ## Moderation Step 5: Optional — Latent Moderation (LMS)
 
 Ask via `AskUserQuestion`:
-- question: "是否需要使用潜变量调节（Latent Moderation Structural Equations, LMS）作为稳健性检验？LMS 使用 semopy 的交互项规格，结果与 OLS 双步法对比。"
-- options: "是，运行 LMS 作为稳健性检验" / "否，OLS 结果足够"
+- question: "Would you like to run Latent Moderation Structural Equations (LMS) as a robustness check? LMS uses semopy's product-indicator specification; results are compared against the two-step OLS approach."
+- options: "Yes — run LMS as a robustness check" / "No — OLS results are sufficient"
 
 If yes, add the interaction specification to the semopy model spec:
 ```
@@ -479,7 +480,7 @@ Report LMS β for the interaction and compare to OLS result. Note methodological
 ## Moderation Step 6: Confirm Results
 
 Present all moderation results to the user. Ask:
-> "调节分析结果如上。模型是否符合预期？是否可以继续构念命名和输出表格？"
+> "The moderation results are shown above. Does the model match your expectations? May we proceed to construct labeling and output table generation?"
 
 ⛔ **Do not generate output tables until the user confirms.**
 
@@ -491,10 +492,10 @@ Present all moderation results to the user. Ask:
 generating output tables.**
 
 Ask the user via `AskUserQuestion`:
-- question: "是否需要为构念设置展示名称（全称）和缩写（用于表格标题和图注）？"
+- question: "Would you like to set custom display names (full names) and abbreviations for each construct (used in table headers and figure captions)?"
 - options:
-  - "是，我来指定每个构念的名称和缩写"
-  - "否，使用变量代码作为标签（如 CE_Search、Coping_PF）"
+  - "Yes — I will specify a name and abbreviation for each construct"
+  - "No — use variable codes as labels (e.g., CE_Search, Coping_PF)"
 
 If the user wants custom labels, for each construct ask for:
 1. Full display name (for figure labels and table rows)
@@ -526,7 +527,7 @@ These labels are applied consistently across all output tables, path diagrams, a
 After the user confirms the model AND construct labels, generate all selected outputs.
 
 Ask via `AskUserQuestion` (multiSelect: true):
-- question: "请选择需要生成的输出（可多选）："
+- question: "Please select the outputs you would like to generate (multiple selections allowed):"
 - options:
   - "Table 1 — Sample Demographics"
   - "Table 2 — Descriptive Statistics, Reliability, Convergent Validity, and Latent Correlations"
@@ -537,7 +538,7 @@ Ask via `AskUserQuestion` (multiSelect: true):
   - "Figure 1 — Conceptual Model Diagram"
   - "Figure 2 — Interaction Plot (if moderation was run)"
   - "DataAnalysis_EN.docx — English write-up of all results"
-  - "DataAnalysis_CN.docx — 中文结果撰写"
+  - "DataAnalysis_CN.docx — Chinese write-up of all results"
 
 Generate only what the user selects. Save all outputs to
 `your-project/output/sem/<model_name>/`.
@@ -545,7 +546,7 @@ Generate only what the user selects. Save all outputs to
 ### Table Formatting Rules (all tables)
 
 - **Font**: Times New Roman 12pt throughout
-- **APA 三线表**: top border (1.5 pt), header bottom border (1 pt), table bottom border (1.5 pt);
+- **APA three-line table**: top border (1.5 pt), header bottom border (1 pt), table bottom border (1.5 pt);
   no vertical lines, no internal horizontal lines
 - **Table title**: italic, above the table
 - **Table note**: italic 10pt, below the table; always include ABBREV_NOTE if abbreviations used
@@ -660,7 +661,7 @@ Save both documents to `your-project/output/sem/<model_name>/`.
 - **Negative variance / Heywood case** — flag the problematic indicator, suggest removing it
   or constraining its variance to a small positive value (e.g., 0.001).
 - **Poor fit (CFI < .90) after MI loop** — if 10 same-scale additions exhausted and CFI still
-  < .90, report best CFI reached and ask: "继续尝试跨构念残差协方差（理论风险较高）？还是简化模型？"
+  < .90, report best CFI reached and ask: "Would you like to try cross-construct residual covariances (higher theoretical risk)? Or simplify the model?"
 - **Bootstrap failure rate > 20%** — warn user that too many bootstrap samples failed to
   converge; consider reducing B or using a simpler bootstrap strategy.
 - **Small sample (N < 200)** — warn that CB-SEM requires adequate sample size; recommend
