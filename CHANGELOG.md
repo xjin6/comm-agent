@@ -1,5 +1,22 @@
 # Changelog
 
+## [agent] - 2026-04-16
+
+### Changed
+- `skill-structural-equation-modeling` v0.4.0 — full skill redesign:
+  - **Step 0 — Startup guidance** (new): before any analysis, agent tells user exactly which files to prepare (`your-project/data/`, `your-project/knowledge/`, `your-project/context.md`) and waits for confirmation
+  - **Auto-identify control variables** (new): scans `knowledge/` files and column names to infer `CTRL_MAP`; presents inferred map to user via multiSelect for confirmation; mean-centers all controls; regresses all endogenous latents on controls in every model; control paths suppressed from output tables
+  - **Per-scale CFA check** (new optional step): before running the full measurement model, user may run a quick single-construct CFA for each scale to catch item problems early
+  - **MI optimization loop switched to `calc_sigma()` residuals** (updated): replaced `calc_mi()` with residual covariance matrix approach (`sigma_obs − sigma_implied`); standardized residuals ranked to identify highest within-subscale pairs; ΔCFI ≥ .001 gate per addition; max 10 iterations
+  - **PROCESS model template picker for mediation** (new): instead of free-form spec, user selects from Models 4/6/7/8/14/58 with structural diagram preview; agent generates semopy spec from template
+  - **Parametric bootstrap indirect effects** (new): B = 5,000 resamples, seed = 42, percentile 95% CI, Delta-method p-values; replaces manual Sobel-only reporting
+  - **Two-step hierarchical OLS moderation** (new): Step 1 = controls + main effects; Step 2 = adds interaction term; simple slopes at −1SD / mean / +1SD of W; optional LMS robustness check via semopy product indicator
+  - **Construct labeling system** (new): `CONSTRUCT_LABELS` (full names for figures/table rows), `ABBREV_LABELS` (abbreviations for table headers), `ABBREV_NOTE` (full footnote string); applied consistently across all outputs
+  - **Expanded output menu** (new/expanded): multiSelect Tables 1–6, Figures 1–2, and bilingual write-up (DataAnalysis_EN.docx + DataAnalysis_CN.docx); generates only what user selects
+  - **Restructured entry point** (redesigned): replaced flat analysis-type picker with a guided EFA → CFA → Mediation → Moderation flow with explicit gating between stages
+
+---
+
 ## [agent] - 2026-04-08
 
 ### Changed

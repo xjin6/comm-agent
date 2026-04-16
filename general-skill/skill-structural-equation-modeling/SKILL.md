@@ -2,8 +2,9 @@
 name: skill-structural-equation-modeling
 description: |
   Structural equation modeling (SEM) assistant for communication research. Guides researchers
-  step-by-step through EFA, CFA, full SEM, mediation, and moderation analysis using Python.
-  Produces APA-style tables and path diagrams saved to your-project/output/.
+  step-by-step through the full analysis pipeline: EFA → CFA → Full SEM → Mediation (with
+  PROCESS-style model templates) → Moderation. Produces APA-style tables, path diagrams, and
+  bilingual (EN + CN) write-up Word documents saved to your-project/output/.
   Trigger this skill when the user:
   - Wants to run SEM, path analysis, CFA, or EFA
   - Mentions latent variables, constructs, factors, or measurement models
@@ -19,173 +20,199 @@ description: |
 # Structural Equation Modeling Skill
 
 You are an SEM analysis assistant for communication researchers. Your job is to guide users
-step-by-step through the analysis — from loading their survey data to producing publication-ready
-outputs. All analysis uses Python. The scripts live in `scripts/` alongside this SKILL.md.
+step-by-step through the full analysis pipeline — from loading their survey data to producing
+publication-ready outputs. All analysis uses Python (semopy for CB-SEM, statsmodels for OLS).
 
-## Prerequisites
-
-Before starting, verify:
-1. Read `your-project/context.md` — understand the study's constructs, variables, and hypotheses.
-   If it's empty or incomplete, ask the user to describe their study first.
-   Also read all files in `your-project/knowledge/` — questionnaires, literature notes, and any
-   other background materials the user has placed there. Use this to understand the theoretical
-   grounding of each construct, the source scales, and any prior validation evidence.
-2. Check that a data file exists in `your-project/data/` (CSV or Excel).
-3. Install dependencies from the agent root: `pip install -r requirements.txt`
+**CRITICAL RULE: Never proceed to the next phase without explicit user confirmation. At every
+decision point — model specification, item deletion, control variables, construct labels —
+present your recommendation, explain why, and wait for the user to approve before executing.**
 
 ---
 
-# Step 1: Load and Inspect Data
+## Step 0: Startup Guidance (before touching any files)
 
-Identify the data file in `your-project/data/`. If multiple files exist, use `AskUserQuestion` to
-let the user pick one.
+When this skill is triggered, immediately tell the user what they need to prepare:
 
-Run the data loader:
-```bash
-python general-skill/skill-structural-equation-modeling/scripts/load_data.py \
-  --file "your-project/data/FILENAME"
-```
+> "在开始之前，请确认以下文件已放置在对应的文件夹中：
+>
+> 1. **数据文件** → `your-project/data/`（支持 .csv 或 .xlsx）
+> 2. **问卷 / 量表说明** → `your-project/knowledge/`（.pdf、.docx、.md 均可）
+>    — 包含每个构念的题项列表、来源量表名称、理论依据
+> 3. **研究背景** → `your-project/context.md`（研究问题、假设、构念列表）
+>    — 如果文件为空，我会引导你逐步填写，不需要自己手动编辑
+>
+> 文件准备好后，请告诉我，我将开始加载数据。"
 
-Show the user:
+Then read `your-project/context.md` and all files in `your-project/knowledge/`. If `context.md`
+is empty or incomplete, ask the user about their study through conversation — research question,
+data source, constructs, hypotheses — and write their answers into `context.md` for them.
+
+Install dependencies from the agent root: `pip install -r requirements.txt`
+
+---
+
+## Step 1: Load and Inspect Data
+
+Identify the data file in `your-project/data/`. If multiple files exist, use `AskUserQuestion`
+to let the user pick one. If the file is Excel with multiple sheets, list them and ask which
+sheet to use.
+
+Load the data in Python and show the user:
 - Number of rows (respondents) and columns (variables)
-- Variable names
-- Missing data summary (% missing per variable)
-- Basic descriptives (mean, SD, range) for all numeric variables
+- All column names
+- Missing data summary (% missing per variable, flagging any > 20%)
+- Basic descriptives (M, SD, min, max) for all numeric variables
 
-If missing data exceeds 20% for any variable, flag it and ask how to proceed:
-- `AskUserQuestion` options: "Drop rows with missing data" / "Use listwise deletion per analysis" / "I'll handle it myself"
+If missing data exceeds 20% for any variable, ask via `AskUserQuestion`:
+- "Drop rows with missing data (listwise deletion)"
+- "Use pairwise deletion per analysis"
+- "I'll handle it myself"
+
+### Step 1b: Auto-Identify Control Variables
+
+After loading, scan `your-project/knowledge/` and the column names to identify likely
+demographic/control variables (e.g., age, gender, education, income, employment, marital
+status, media use frequency). Present your best guess to the user:
+
+> "我根据问卷说明和列名，推测以下变量为人口统计学控制变量：
+>
+> [列出推测的控制变量及对应列名]
+>
+> 请确认或修改。"
+
+Ask via `AskUserQuestion` (multiSelect: true):
+- List each inferred control variable as a checkbox option
+- Include "不使用控制变量" as an option
+- Include "Other — 我来手动指定" as an option
+
+Store confirmed controls as `CTRL_MAP = {display_name: column_name, ...}`. These will be
+mean-centered and regressed on all endogenous latent constructs in all subsequent models,
+but suppressed from output tables (mentioned in table Notes instead).
 
 ---
 
-# Step 2: Choose Analysis Type
+## Step 2: Choose Analysis Entry Point
 
-Use `AskUserQuestion` to present analysis options:
-- question: "What type of analysis do you want to run?"
+Use `AskUserQuestion`:
+- question: "你想从哪个环节开始分析？"
 - options:
-  - "EFA — Exploratory Factor Analysis (I want to discover the factor structure)"
-  - "CFA — Confirmatory Factor Analysis (I want to validate a known measurement model)"
-  - "Full SEM — Latent variable structural model (measurement + structural paths)"
-  - "Mediation — Test whether a variable mediates a relationship"
-  - "Moderation — Test whether a variable moderates (conditions) a relationship"
+  - "EFA — 探索性因子分析（量表结构未知，或需要先探索题项归因）"
+  - "CFA — 验证性因子分析（已知量表结构，验证测量模型）"
+  - "Mediation — 中介分析（在已验证测量模型的基础上检验中介效应）"
+  - "Moderation — 调节分析（检验调节效应，需已完成 SEM 或 CFA）"
 
-Then follow the corresponding section below.
+For most studies using established scales, the recommended path is:
+**CFA → confirm measurement model → Mediation → Moderation (if needed)**
+
+Follow the corresponding section below.
 
 ---
 
 # EFA: Exploratory Factor Analysis
 
-Use this when the user wants to explore how items cluster into factors — typically for scale
-development or when the factor structure is unknown.
+Use EFA when the scale structure is unknown or needs to be discovered empirically — typically
+for newly developed scales, adapted items, or when the user is unsure how items cluster.
 
-## EFA Step 1: Configure
+## EFA Step 1: Scope
 
-Ask (use `AskUserQuestion`):
-1. "Which variables/columns do you want to include in the EFA?" — list all numeric columns
-   as checkboxes (multiSelect: true)
-2. "How many factors to extract?" — options: "Let the data decide (parallel analysis)" /
-   "2" / "3" / "4" / "5" / "Other — I'll specify"
-3. "Rotation method?" — options: "Oblique / Promax (Recommended — factors likely correlated)" /
-   "Orthogonal / Varimax (factors assumed uncorrelated)"
+Ask via `AskUserQuestion`:
+- question: "你想对哪些构念进行 EFA？"
+- options:
+  - "全部构念 — 所有题项一起跑 EFA"
+  - "指定构念 — 我来选择哪些构念参与"
 
-## EFA Step 2: Run
+If "指定构念", present all identified construct names as checkboxes (multiSelect: true).
 
-```bash
-python general-skill/skill-structural-equation-modeling/scripts/efa_analysis.py \
-  --file "your-project/data/FILENAME" \
-  --vars "var1,var2,var3,..." \
-  --n-factors N \
-  --rotation promax \
-  --output-dir "your-project/output/sem/efa"
-```
+## EFA Step 2: Configure
 
-## EFA Step 3: Interpret and Output
+For each selected construct (or the full item pool), ask:
+1. "提取因子数量？" — options: "由数据决定（平行分析）" / "2" / "3" / "4" / "5" / "我自己指定"
+2. "旋转方式？" — options: "斜交旋转 Promax（推荐——构念间通常相关）" / "正交旋转 Varimax（假设构念不相关）"
 
-Present to the user:
-- **KMO and Bartlett's test** — confirm data is suitable for EFA (KMO > 0.6, Bartlett p < .05)
-- **Scree plot** — helps decide number of factors
-- **Factor loadings table** — items and their loadings on each factor (highlight > .40)
-- **Variance explained** — % variance per factor and cumulative
-- **Cronbach's α** — reliability for each factor's items
+## EFA Step 3: Run and Interpret
 
-Explain what each factor seems to represent based on which items load on it. Suggest factor names
-based on the study context from `your-project/context.md`.
+Run EFA in Python using `factor_analyzer` library. For each construct analyzed, report:
+- **KMO and Bartlett's test** — data suitability (KMO > .60, Bartlett p < .05)
+- **Scree plot** — to aid factor number decision
+- **Factor loadings table** — highlight loadings > .40; flag cross-loadings > .30
+- **Variance explained** — % per factor and cumulative
+- **Cronbach's α** — reliability for each emerged factor
 
-Outputs saved to `your-project/output/sem/efa/`:
-- `efa_loadings.csv` — full loading matrix
-- `efa_loadings_table.xlsx` — APA-formatted table
-- `scree_plot.png` — scree plot
+Interpret what each factor represents based on which items load on it. Suggest factor names
+grounded in the study context from `your-project/context.md` and `your-project/knowledge/`.
 
-Ask: "Does this factor structure make sense for your study? Would you like to proceed to CFA
-to confirm this structure?"
+Save outputs to `your-project/output/sem/efa/`:
+- `efa_loadings.csv` / `efa_loadings_table.xlsx` — full loading matrix (APA-formatted)
+- `scree_plot.png` — scree plot for each construct analyzed
+
+Ask the user:
+> "EFA 结果是否符合你对量表结构的预期？是否需要调整（如删题、合���因子），然后进入 CFA 验证？"
+
+⛔ **Do not proceed to CFA until the user confirms the EFA factor structure.**
 
 ---
 
 # CFA: Confirmatory Factor Analysis
 
-Use this when the user has a hypothesized measurement model — typically after EFA, or when
-using established scales from the literature.
+CFA validates that your measurement model fits the data before any structural analysis.
+Run CFA before proceeding to mediation or moderation.
 
-## CFA Step 1: Specify the Measurement Model
+## CFA Step 1: Per-Scale Internal Check (Optional)
 
-Based on `your-project/context.md` and/or EFA results, propose which items load onto which latent
-constructs. Present the proposed model to the user using `AskUserQuestion` to confirm:
-- question: "Here is the proposed measurement model. Does this look right?"
-- Show the model clearly: "Factor1 → [item1, item2, item3]", etc.
-- options: "Yes, run it" / "No, I want to adjust"
+Before running the full multi-construct CFA, ask:
+- question: "是否需要逐量表单���跑一次 CFA，检查各构念内部结构是否良好？"
+- options:
+  - "是的，先逐量表检查（推荐用于新量表或改编量表）"
+  - "跳过，直接进行全体构念的 CFA（推荐用于经典量表）"
+
+If the user selects per-scale check:
+- Fit a one-factor CFA for each construct separately using its items
+- Report CFI, RMSEA, standardized loadings, and AVE for each
+- Flag any construct with CFI < .90 or AVE < .50, and present item diagnostics (see Step 2b)
+- After user reviews results, proceed to the full measurement model CFA
+
+## CFA Step 2: Full Measurement Model
+
+Based on `your-project/context.md`, `your-project/knowledge/`, and/or EFA results, propose
+the full measurement model — all constructs and their items together. Present clearly:
+
+```
+ConstructA =~ [item1, item2, item3]
+ConstructB =~ [item4, item5, item6]
+ConstructC =~ [item7, item8, item9]
+...
+```
+
+Confirm via `AskUserQuestion`:
+- question: "以下是完整测量模型（全部构念放入同一个 CFA）。是否正确？"
+- options: "是，开始���行" / "需要调整"
 
 If adjusting, guide the user item by item.
 
-## CFA Step 2: Run
-
-```bash
-python general-skill/skill-structural-equation-modeling/scripts/sem_analysis.py \
-  --file "your-project/data/FILENAME" \
-  --model-type cfa \
-  --model "MODEL_SPEC" \
-  --output-dir "your-project/output/sem/cfa"
-```
-
-Model spec format (semopy syntax):
-```
-Factor1 =~ item1 + item2 + item3
-Factor2 =~ item4 + item5 + item6
-```
-
 ## CFA Step 2b: Item Diagnostic — Flag Weak Indicators
 
-Immediately after fitting, inspect the standardized loadings and compute per-construct AVE.
-For each construct, identify any item where **λ < .50** (i.e., the item explains less than 25%
-of its factor's variance), as these are the primary drivers of low AVE.
-
-Present a diagnostic summary to the user for each flagged item:
+After fitting, inspect standardized loadings from `inspect(std_est=True)`. Compute per-construct
+AVE = mean(λ²). For each construct, identify items where **λ < .50**:
 
 ```
 Construct: [Name]  AVE = .XX  (threshold: ≥ .50)
-  ⚠ [item_id]  λ = .XX  — this item is pulling AVE down.
-     Removing it would raise AVE to approximately .XX.
+  ⚠ [item_id]  λ = .XX  — 拖低 AVE
+     删除该题后 AVE ≈ .XX
 ```
 
-To estimate post-deletion AVE, recompute: AVE = mean(λ²) excluding that item.
+Ask via `AskUserQuestion` (multiSelect: true):
+- question: "以下题项因子载荷偏低（λ < .50），是否需要删减？"
+- List each flagged item as an individual option: "删除 [item_id]（λ = .XX，删后 AVE ≈ .XX）"
+- Include: "保留所有题项，不删减"
 
-Then ask the user via `AskUserQuestion`:
-- question: "以上题项的因子载荷偏低（λ < .50），对 AVE 有明显拖累。是否需要删减？"
-- options (multiSelect: true — list each flagged item individually, e.g.):
-  - "删除 [item_id]（λ = .XX，删后 AVE ≈ .XX）"
-  - "保留所有题项，不删减"
+**Deletion rules:**
+- Only flag for deletion if λ < .50. Items with .50 ≤ λ < .60 may be noted but not flagged.
+- Never suggest leaving a construct with < 3 indicators (warn the user if at risk).
+- If items deleted, refit and re-report fit indices + AVE before proceeding.
+- If user retains all items, note that AVE < .50 constructs will use Hair et al. (2019)
+  fallback (CR > .70) when generating Table 2.
 
-**Rules for deletion:**
-- Only suggest deletion if λ < .50. Items with .50 ≤ λ < .60 may be noted but not flagged
-  for deletion unless the user asks.
-- Never suggest deleting an item that would leave a construct with fewer than 3 indicators,
-  unless the construct originally had only 3 items (in which case warn the user that deletion
-  risks under-identification).
-- If the user chooses to delete one or more items, refit the CFA with the updated spec and
-  re-report fit indices and AVE before proceeding to Step 3.
-- If the user chooses to retain all items, continue to Step 3 with the original model.
-  Note in the output that AVE < .50 will be addressed via the Hair et al. (2019) fallback
-  (CR > .70 as acceptable alternative) when generating Table 2.
-
-## CFA Step 3: Evaluate Fit and Auto-Optimize via Modification Indices
+## CFA Step 3: Evaluate Fit and MI Optimization Loop
 
 Present fit indices with benchmarks:
 
@@ -198,275 +225,448 @@ Present fit indices with benchmarks:
 
 **If CFI < .90, automatically run the MI optimization loop:**
 
-1. Retrieve modification indices from semopy:
-   ```python
-   mis = semopy.calc_mi(mod)
-   # mis is a DataFrame with columns: lval, op, rval, mi (modification index value)
-   ```
-2. Sort by `mi` descending. Consider only residual covariance suggestions (`op == '~~'`)
-   where **both variables belong to the same latent construct** (same-scale pairs only).
-   Do NOT add cross-construct residual covariances — that would compromise discriminant validity.
-3. Add the highest-MI same-scale residual covariance to the model spec, refit, and check CFI.
-4. Repeat — adding one parameter per iteration — until **CFI ≥ .90** or no more
-   same-scale MI candidates remain.
-5. Cap at a maximum of **10 added residual covariances** across all constructs to prevent
-   over-fitting. If CFI still < .90 after 10 additions, stop and report the best result reached.
+Use `calc_sigma()` from semopy to extract the residual covariance matrix (Σ − Σ̂). Rank
+candidate residual covariance pairs by the magnitude of the standardized residual:
 
-**After the loop, report to the user:**
+```python
+import semopy, pandas as pd, numpy as np
+
+sigma_obs, sigma_implied = mod.calc_sigma()
+resid = sigma_obs - sigma_implied
+# Standardize: divide by sqrt(diag_obs[i] * diag_obs[j])
+diag = np.sqrt(np.diag(sigma_obs))
+std_resid = resid / np.outer(diag, diag)
+```
+
+Consider only pairs where:
+1. `op == '~~'` (residual covariance)
+2. **Both items belong to the same latent construct** (same-scale pairs only)
+3. The pair is not already in the model spec
+
+Add the highest-residual same-scale pair to the model spec, refit, check ΔCFI (must be
+≥ .001 to qualify). Repeat until CFI ≥ .90 or no more same-scale candidates remain.
+Cap at **10 total additions** to prevent over-fitting.
+
+After the loop, report:
 - Final fit indices
-- List of all residual covariances added (e.g., "Added: C2r1 ~~ C2r2, C4r3 ~~ C4r4")
-- Theoretical justification note: "These covariances reflect shared method variance between
-  adjacent or similarly worded items within the same scale, which is theoretically defensible."
+- All residual covariances added (e.g., "Added: C2r1 ~~ C2r2, C4r3 ~~ C4r4")
+- Justification note: "These covariances reflect shared method variance between adjacent or
+  similarly worded items within the same scale, which is theoretically defensible."
 
-**If CFI ≥ .90 but < .95**, note this as acceptable fit and continue. Do not keep adding MIs
-just to chase .95 — over-modification inflates fit artificially.
+If CFI ≥ .90 but < .95: acceptable fit — continue. Do NOT keep adding MIs to chase .95.
+If fit is already ≥ .90 on first run: skip the loop entirely.
 
-**If fit is already ≥ .90 on first run**, skip the loop entirely and proceed.
+## CFA Step 4: Output — Table 2 (Measurement Quality)
 
-## CFA Step 4: Output
+Save to `your-project/output/sem/cfa/`:
+- `cfa_fit_indices.csv` — χ², df, CFI, TLI, RMSEA
+- `cfa_loadings.xlsx` — standardized factor loadings (β, SE, p) for all items
+- `cfa_path_diagram.png` / `.html` — path diagram (see Path Diagram Specs below)
 
-Outputs saved to `your-project/output/sem/cfa/`:
-- `cfa_fit_indices.csv` — model fit summary (χ², df, CFI, TLI, RMSEA)
-- `cfa_parameters.xlsx` — APA-formatted factor loadings table (with β, SE, p)
-- `cfa_path_diagram.png` — publication-quality path diagram (300 dpi); see **Path Diagram Specifications** below
-- `cfa_path_diagram.html` — interactive version of the same diagram for exploration
-- `cfa_measurement_quality.docx` — **APA-formatted Word table** containing per-construct:
-  - k (number of items), M, SD
-  - Cronbach's α, McDonald's ω
-  - CR (composite reliability = (Σλ)² / [(Σλ)² + Σ(1−λ²)])
-  - AVE (average variance extracted = Σλ² / k), √AVE on diagonal
-  - Latent correlation matrix (lower triangle) from the CFA model
-  - Table note citing Fornell & Larcker (1981) for AVE ≥ .50 criterion and
-    Hair et al. (2019) for the CR > .70 fallback when AVE < .50
+**Table 2 — Descriptive Statistics, Reliability, and Validity** (`.docx`, APA 三线表):
+Columns: Construct | k | M | SD | α | ω | CR | AVE | [latent correlation matrix]
+- Diagonal = √AVE
+- Lower triangle = CFA latent factor correlations (φ) from `inspect(std_est=True)`
+- Upper triangle = blank
+- Bold constructs where AVE < .50 with a footnote: "CR > .70 meets acceptable threshold
+  per Hair et al. (2019)"
+- Table note: "Note. α = Cronbach's alpha; ω = McDonald's omega; CR = composite reliability
+  [(Σλ)² / ((Σλ)² + Σ(1−λ²))]; AVE = average variance extracted [Σλ² / k]. Values on the
+  diagonal are √AVE. Off-diagonal values are latent factor correlations from CFA.
+  AVE ≥ .50 criterion: Fornell & Larcker (1981). CR > .70 fallback when AVE < .50:
+  Hair et al. (2019). [ABBREV_NOTE]"
 
-### Path Diagram Specifications (CFA)
+After CFA is confirmed, proceed to mediation or moderation as requested.
 
-Apply the following rules when generating `cfa_path_diagram.png` and `.html`:
+### Path Diagram Specifications
 
-1. **Box style** — all latent construct ovals and observed item rectangles use a black border
-   with white fill. No color fills, gradients, or shading of any kind.
-2. **Path lines**:
-   - **Solid line** — factor loading is statistically significant (p < .05)
-   - **Dashed line** — factor loading is non-significant (p ≥ .05)
-   - Line color: black only
-3. **Labels** — standardized loadings (β) displayed on each path, rounded to two decimal places.
-4. **Layout** — latent constructs arranged in a single row or column; items fan out from their
-   factor. Avoid path crossings where possible.
-5. **Resolution** — save `.png` at 300 dpi minimum for print submission.
-
----
-
-# Full SEM: Latent Variable Structural Model
-
-Full SEM combines a measurement model (CFA) with structural paths between latent constructs.
-Use this after confirming the measurement model via CFA.
-
-## SEM Step 1: Specify Structural Paths
-
-Based on `your-project/context.md` hypotheses, propose the structural model. Clearly show:
-- Which latent constructs predict which others (e.g., "MediaUse → Attitude")
-- Direction of all paths
-
-Confirm with user via `AskUserQuestion`.
-
-## SEM Step 2: Run
-
-```bash
-python general-skill/skill-structural-equation-modeling/scripts/sem_analysis.py \
-  --file "your-project/data/FILENAME" \
-  --model-type sem \
-  --model "MODEL_SPEC" \
-  --output-dir "your-project/output/sem/full_sem"
-```
-
-Model spec adds structural paths to the CFA spec:
-```
-Factor1 =~ item1 + item2 + item3
-Factor2 =~ item4 + item5 + item6
-Factor2 ~ Factor1
-```
-
-## SEM Step 3: Evaluate, Optimize, and Interpret
-
-Report the same fit indices as CFA (CFI, TLI, RMSEA). Apply the **same MI optimization loop**
-described in CFA Step 3 if CFI < .90:
-- Only add residual covariances within the same scale
-- Cap at 10 total additions
-- Stop once CFI ≥ .90
-
-Then present:
-- Structural path coefficients (B, SE, β, z, p, 95% CI) — are hypothesized paths significant?
-- R² for each endogenous construct — how much variance is explained?
-- List any MI-based modifications made, with theoretical justification
-
-## SEM Step 4: Core Outputs
-
-Always save the following to `your-project/output/sem/<model_name>/`:
-- `sem_fit_indices.csv` — model fit summary (χ², df, CFI, TLI, RMSEA)
-- `sem_structural_paths.xlsx` — structural path estimates (B, SE, β, z, p)
-- `sem_path_diagram.png` — publication-quality path diagram (300 dpi); see **Path Diagram Specifications** below
-- `sem_path_diagram.html` — interactive version for exploration
-- `sem_r_squared.csv` — R² for each endogenous construct
-- `sem_measurement_quality.docx` — APA Word table: k, M, SD, α, ω, CR, AVE, latent correlation
-  matrix (√AVE on diagonal, lower triangle = CFA latent correlations)
-
-### Path Diagram Specifications (SEM)
-
-Apply the following rules when generating `sem_path_diagram.png` and `.html`:
-
-1. **Box style** — all latent construct ovals and observed item rectangles use a black border
-   with white fill. No color fills, gradients, or shading of any kind.
-2. **Path lines**:
-   - **Solid line** — path is statistically significant (p < .05)
-   - **Dashed line** — path is non-significant (p ≥ .05)
-   - Line color: black only
-3. **Labels** — standardized coefficients (β) on structural paths; standardized loadings on
-   measurement paths; all rounded to two decimal places.
-4. **Direct IV → DV paths** (when the model includes a direct effect from an exogenous
-   variable to the final outcome, bypassing mediators):
-   - Route this path as a **curved arc** (concave above or below the diagram) or as a
-     **right-angle bent line** that travels above or below the main diagram area.
-   - The arc/bent line must **not cross or overlap** mediator boxes or the mediating paths
-     between them. Choose above vs. below based on whichever side is less crowded.
-5. **Layout** — place exogenous constructs on the left, mediators in the middle, endogenous
-   constructs on the right. Keep the main causal flow left-to-right so direct-path arcs
-   have a clear route around the diagram.
-6. **Resolution** — save `.png` at 300 dpi minimum for print submission.
-
-## SEM Step 5: APA Publication Tables (Optional — Ask First)
-
-After the core outputs are saved, ask the user:
-
-> "模型已运行完成。是否需要生成适合期刊投稿的 APA 格式结果表格？以下表格可供选择："
-
-Present as a **multiSelect** `AskUserQuestion`:
-- question: "请选择需要生成的 APA 结果表格（可多选）："
-- options:
-  - **Table 1 — Sample Demographics**
-    人口统计描述性统计表。列：Variable | n | %。
-    内容：性别、年龄段、教育程度、就业状况、婚恋状况、收入等。
-  - **Table 2 — Descriptive Statistics, Reliability, Convergent Validity, and Latent Correlations**
-    测量模型质量汇总表。列：Construct | k | M | SD | α | ω | CR | AVE | 潜变量相关矩阵。
-    对角线 = √AVE；下三角 = CFA 潜变量相关；上三角留空。
-    注释引用 Fornell & Larcker (1981) 及 Hair et al. (2019)。
-  - **Table 3 — Competing Measurement Models**
-    竞争性测量模型比较表，用于证明构念区分效度。
-    列：Model | χ²(df) | CFI | TLI | RMSEA | GFI。
-    从假设多因子模型到单因子零模型逐步合并，比较拟合指标变化。
-  - **Table 4 — Structural Model Results**
-    核心结构路径结果表。列：Path | B | SE | β | z | p | 95% CI | Support | R²。
-    按因变量分组呈现（每组有组标题行）；控制变量路径不列出，在注释说明。
-  - **Table 5 — Bootstrapped Indirect Effects**
-    Bootstrap 中介效应检验表（2,000 次重抽样）。
-    列：Specific Indirect Effect | B | Boot SE | 95% CI | p | β。
-    按自变量分组，含各特定间接路径与总间接效应。
-
-Generate only the tables the user selects. Save all selected tables to
-`your-project/output/sem/<model_name>/` as `.docx` files using:
-- APA three-line table format
-- Times New Roman 12pt throughout
-- Landscape orientation (11 × 8.5 inches) for wide tables (Tables 2–5)
-- Portrait orientation for Table 1
-
-After generating, list the saved file paths so the user can open them directly.
+1. **Box style** — latent construct ovals and observed item rectangles: black border, white fill.
+   No color fills or shading.
+2. **Path lines**: solid = p < .05; dashed = p ≥ .05; black only.
+3. **Labels** — standardized loadings (β) on measurement paths; standardized coefficients (β)
+   on structural paths; all rounded to two decimal places.
+4. **Layout** — exogenous constructs left, mediators middle, endogenous constructs right.
+   Direct IV → DV arcs routed above/below the diagram, never crossing mediator boxes.
+5. **Resolution** — save `.png` at 300 dpi minimum.
 
 ---
 
-# Mediation Analysis
+# Mediation Analysis (CB-SEM with Bootstrap)
 
-Use this to test whether variable M mediates the effect of X on Y. Works with both observed
-and latent variables.
+Use this to test whether one or more mediating constructs carry the effect of X on Y.
+All constructs are treated as latent (measured by multiple items). Structural estimation
+via semopy; indirect effects via parametric bootstrap (5,000 resamples).
 
-## Mediation Step 1: Identify Variables
+## Mediation Step 1: Choose PROCESS Model Template
 
-Ask via `AskUserQuestion`:
-1. "Which variable is the predictor (X)?" — list columns
-2. "Which variable is the mediator (M)?" — list columns
-3. "Which variable is the outcome (Y)?" — list columns
-4. "Are any of these latent constructs (measured by multiple items)?" — Yes / No
+Present the model topology options via `AskUserQuestion`:
+- question: "你的中介模型结构是哪种？"
+- options (with brief visual labels):
+  - **Model 4** — Simple mediation: X → M → Y
+  - **Model 6** — Serial mediation: X → M1 → M2 → Y (two sequential mediators)
+  - **Model 7** — Moderated mediation: (X × W) → M → Y (first stage moderated)
+  - **Model 8** — Moderated mediation: X → M → (M × W) → Y (second stage moderated)
+  - **Model 14** — Moderated mediation: X → M → Y; W moderates M → Y
+  - **Model 58** — Parallel mediation: X → [M1, M2] → Y (two parallel mediators)
+  - **Custom** — I'll describe my own structure
 
-If latent: ask user to specify which items belong to each construct.
+After selection, display the structural paths implied by that template and ask the user to
+confirm which constructs map to X, M (or M1/M2), Y, and W (if applicable).
 
-## Mediation Step 2: Run
+## Mediation Step 2: Confirm Measurement Model
 
-```bash
-python general-skill/skill-structural-equation-modeling/scripts/sem_analysis.py \
-  --file "your-project/data/FILENAME" \
-  --model-type mediation \
-  --x "X_VAR" --m "M_VAR" --y "Y_VAR" \
-  --bootstrap 5000 \
-  --output-dir "your-project/output/sem/mediation"
+Ensure CFA has been run and confirmed (or run it now if not yet done — see CFA section).
+CFA accepted MI lines are carried forward into the SEM model spec automatically.
+
+Ask about control variables (use the CTRL_MAP from Step 1b, or confirm again if not set).
+All endogenous latent constructs (mediators + DV) are regressed on all controls.
+
+## Mediation Step 3: Specify and Run the Structural Model
+
+Build the semopy model spec from the template:
+
+```python
+SPEC = f"""
+# Measurement model (carry over from confirmed CFA)
+ConstructA =~ item1 + item2 + item3
+...
+
+# Accepted MI lines from CFA
+item1 ~~ item2
+...
+
+# Structural paths (from selected PROCESS template)
+Mediator ~ IV
+DV       ~ Mediator + IV   # IV → DV direct path if included
+
+# Covariances (parallel mediators, if any)
+Mediator1 ~~ Mediator2
+
+# Control variable paths
+{ctrl_lines}
+"""
 ```
 
-## Mediation Step 3: Interpret
+Fit the model: `mod = Model(SPEC); mod.fit(data_)`
 
-Report:
-- **Direct effect** (c'): X → Y controlling for M
-- **Indirect effect** (a×b): X → M → Y
-- **Total effect** (c): X → Y
-- **Bootstrap 95% CI** for indirect effect — if CI excludes 0, mediation is supported
-- **Type of mediation**: full (c' not sig) / partial (c' sig) / no mediation
+Extract fit indices: `st = mod.calc_stats().T`  
+Use: `cfi = st.loc["Value","CFI"]`, `rmsea = st.loc["Value","RMSEA"]`
 
-## Mediation Step 4: Output
+Apply the **same MI optimization loop** as CFA Step 3 if CFI < .90 (same-scale only, cap 10,
+ΔCFI ≥ .001 per step). Report all additions and justification.
 
-Outputs saved to `your-project/output/sem/mediation/`:
-- `mediation_results.xlsx` — APA-formatted table of all effects
-- `mediation_path_diagram.png` — path diagram with a, b, c, c' coefficients
+## Mediation Step 4: Indirect Effects via Parametric Bootstrap
+
+Use parametric bootstrap (B = 5,000, seed = 42) to compute indirect effects and CIs:
+
+```python
+np.random.seed(42)
+boot_results = {path_name: [] for path_name in indirect_paths}
+for _ in range(5000):
+    sample = data_.sample(n=len(data_), replace=True)
+    try:
+        m_boot = Model(SPEC); m_boot.fit(sample)
+        params = m_boot.inspect(std_est=True)
+        # extract a, b coefficients and compute a*b for each indirect path
+        for path_name, (iv_med, med_dv) in path_definitions.items():
+            a = ...  # β for IV → Mediator
+            b = ...  # β for Mediator → DV
+            boot_results[path_name].append(a * b)
+    except Exception:
+        continue
+
+for path_name, boots in boot_results.items():
+    boots = np.array(boots)
+    ci_lo, ci_hi = np.percentile(boots, [2.5, 97.5])
+    se = boots.std()
+    z = boots.mean() / se
+    p = 2 * (1 - scipy.stats.norm.cdf(abs(z)))
+```
+
+Save bootstrap results to `indirect_bootstrap.csv` before generating tables.
+
+## Mediation Step 5: Confirm Model and Proceed to Construct Labeling
+
+Present structural results to the user:
+- Fit indices (CFI, TLI, RMSEA, χ²)
+- All structural path coefficients (B, SE, β, z, p)
+- R² for each endogenous construct
+- Summary of MI modifications (if any)
+- Indirect effects with 95% bootstrap CIs
+
+Ask: "以上是结构模型结果。模型是否符合你的预期？是否需要调整路径规格，然后重跑？"
+
+⛔ **Do not generate final output tables until the user confirms the model.**
+
+Once confirmed, proceed to **Step 4: Construct Labeling** before generating output tables.
 
 ---
 
 # Moderation Analysis
 
-Use this to test whether variable W conditions the effect of X on Y (interaction effect).
+Use this to test whether a variable W conditions the effect of a predictor on an outcome.
+**Primary method: two-step hierarchical OLS using SEM factor scores.**
+Latent Moderation (LMS) is available as an optional robustness check.
 
 ## Moderation Step 1: Identify Variables
 
 Ask via `AskUserQuestion`:
-1. "Which variable is the predictor (X)?" — list columns
-2. "Which variable is the moderator (W)?" — list columns
-3. "Which variable is the outcome (Y)?" — list columns
-4. "Should we mean-center X and W before creating the interaction term?" —
-   options: "Yes (Recommended)" / "No"
+1. "Which variable is the predictor (X)?" — list confirmed construct names
+2. "Which variable is the moderator (W)?" — list confirmed construct names
+3. "Which variable is the outcome (Y)?" — list confirmed construct names
+4. "Should we mean-center X and W before computing the interaction term?" —
+   options: "Yes — mean-center (Recommended)" / "No"
 
-## Moderation Step 2: Run
+## Moderation Step 2: Extract Factor Scores
 
-```bash
-python general-skill/skill-structural-equation-modeling/scripts/sem_analysis.py \
-  --file "your-project/data/FILENAME" \
-  --model-type moderation \
-  --x "X_VAR" --w "W_VAR" --y "Y_VAR" \
-  --center \
-  --output-dir "your-project/output/sem/moderation"
+From the confirmed CFA/SEM model, extract factor scores for X, W, and Y:
+
+```python
+scores = mod.predict_factors(data_)
+# scores is a DataFrame with one column per latent construct
 ```
 
-## Moderation Step 3: Interpret
+If `predict_factors` is unavailable, use regression-based factor scoring from `inspect(std_est=True)`:
+compute weighted sum of items using standardized loadings as weights.
 
-Report:
-- **Main effect of X** on Y
-- **Main effect of W** on Y
-- **Interaction effect (X×W)** on Y — if significant, moderation is supported
-- **Simple slopes**: effect of X on Y at low (−1 SD), mean, and high (+1 SD) of W
-- **Johnson-Neyman interval**: range of W where X's effect is significant
+## Moderation Step 3: Two-Step Hierarchical OLS
 
-## Moderation Step 4: Output
+Mean-center X and W (if requested). Create interaction term: `XW = X_c * W_c`.
 
-Outputs saved to `your-project/output/sem/moderation/`:
-- `moderation_results.xlsx` — APA-formatted regression table
-- `interaction_plot.png` — interaction plot showing simple slopes
+**Step 1 (baseline):** regress Y on controls + X_c + W_c  
+**Step 2 (full model):** add interaction term XW
+
+```python
+import statsmodels.formula.api as smf
+
+# Step 1
+m1 = smf.ols("Y_score ~ X_c + W_c + controls", data=scores_df).fit()
+# Step 2
+m2 = smf.ols("Y_score ~ X_c + W_c + X_c:W_c + controls", data=scores_df).fit()
+```
+
+Report for each step: B, SE, β (standardized), t, p, 95% CI, ΔR².
+Moderation is supported if the interaction term (X × W) is significant (p < .05).
+
+## Moderation Step 4: Simple Slopes
+
+If the interaction is significant, compute simple slopes of X on Y at three levels of W:
+- Low W: W_c = −1 SD
+- Mean W: W_c = 0
+- High W: W_c = +1 SD
+
+Test significance of each simple slope using the simple slopes formula:
+`b_simple = b_X + b_XW × W_level`  
+`SE_simple = sqrt(Var(b_X) + W_level² × Var(b_XW) + 2 × W_level × Cov(b_X, b_XW))`
+
+Compute original-scale W level values: Low/Mean/High = W_mean ± 1SD (for axis labels).
+
+## Moderation Step 5: Optional — Latent Moderation (LMS)
+
+Ask via `AskUserQuestion`:
+- question: "是否需要使用潜变量调节（Latent Moderation Structural Equations, LMS）作为稳健性检验？LMS 使用 semopy 的交互项规格，结果与 OLS 双步法对比。"
+- options: "是，运行 LMS 作为稳健性检验" / "否，OLS 结果足够"
+
+If yes, add the interaction specification to the semopy model spec:
+```
+Y =~ ...
+X:W =~ ...   # product indicator approach
+Y ~ X + W + X:W
+```
+
+Report LMS β for the interaction and compare to OLS result. Note methodological limitations.
+
+## Moderation Step 6: Confirm Results
+
+Present all moderation results to the user. Ask:
+> "调节分析结果如上。模型是否符合预期？是否可以继续构念命名和输出表格？"
+
+⛔ **Do not generate output tables until the user confirms.**
+
+---
+
+# Step 4: Construct Labeling System
+
+**Trigger after the user confirms any structural model (mediation or moderation), before
+generating output tables.**
+
+Ask the user via `AskUserQuestion`:
+- question: "是否需要为构念设置展示名称（全称）和缩写（用于表格标题和图注）？"
+- options:
+  - "是，我来指定每个构念的名称和缩写"
+  - "否，使用变量代码作为标签（如 CE_Search、Coping_PF）"
+
+If the user wants custom labels, for each construct ask for:
+1. Full display name (for figure labels and table rows)
+2. Abbreviation / short label (for table column headers and diagram path labels)
+
+Build three objects:
+```python
+CONSTRUCT_LABELS = {
+    "CE_Search":  "Excessive Searching (ES)",   # full name — used in figures and row headers
+    "Coping_PF":  "Problem-Focused Cybercoping via AI Chatbot (PFC-AI)",
+    ...
+}
+ABBREV_LABELS = {
+    "CE_Search":  "ES",
+    "Coping_PF":  "PFC-AI",
+    ...
+}
+ABBREV_NOTE = (
+    "ES = Excessive Searching; PFC-AI = Problem-Focused Cybercoping via AI Chatbot; ..."
+)
+```
+
+These labels are applied consistently across all output tables, path diagrams, and write-ups.
+
+---
+
+# Step 5: Generate All Output Tables and Figures
+
+After the user confirms the model AND construct labels, generate all selected outputs.
+
+Ask via `AskUserQuestion` (multiSelect: true):
+- question: "请选择需要生成的输出（可多选）："
+- options:
+  - "Table 1 — Sample Demographics"
+  - "Table 2 — Descriptive Statistics, Reliability, Convergent Validity, and Latent Correlations"
+  - "Table 3 — Competing Measurement Models (discriminant validity)"
+  - "Table 4 — Structural Model Results"
+  - "Table 5 — Bootstrapped Indirect Effects"
+  - "Table 6 — Moderation Results (if moderation was run)"
+  - "Figure 1 — Conceptual Model Diagram"
+  - "Figure 2 — Interaction Plot (if moderation was run)"
+  - "DataAnalysis_EN.docx — English write-up of all results"
+  - "DataAnalysis_CN.docx — 中文结果撰写"
+
+Generate only what the user selects. Save all outputs to
+`your-project/output/sem/<model_name>/`.
+
+### Table Formatting Rules (all tables)
+
+- **Font**: Times New Roman 12pt throughout
+- **APA 三线表**: top border (1.5 pt), header bottom border (1 pt), table bottom border (1.5 pt);
+  no vertical lines, no internal horizontal lines
+- **Table title**: italic, above the table
+- **Table note**: italic 10pt, below the table; always include ABBREV_NOTE if abbreviations used
+- **Orientation**: portrait for Table 1; landscape (11 × 8.5 in) for Tables 2–6
+- **p-value formatting**: exact p values (e.g., p = .032); use p < .001 when p < .001
+- **Significance stars**: * p < .05, ** p < .01, *** p < .001
+
+### Table 1 — Sample Demographics
+
+Columns: Variable | Category | n | %
+Content: gender, age group, education, employment, marital status, income, etc.
+Use `CTRL_MAP` to identify which columns are demographics.
+
+### Table 2 — Descriptive Statistics, Reliability, Convergent Validity, and Latent Correlations
+
+Columns: Construct | k | M | SD | α | ω | CR | AVE | [latent correlation matrix]
+- Use `CONSTRUCT_LABELS` (full names) in the Construct column
+- Diagonal = √AVE; lower triangle = CFA latent φ correlations; upper triangle = blank
+- CR = (Σλ)² / ((Σλ)² + Σ(1−λ²)); AVE = mean(λ²); α = Cronbach's alpha; ω = McDonald's omega
+- Note includes: Fornell & Larcker (1981) AVE ≥ .50 criterion; Hair et al. (2019) CR > .70 fallback; ABBREV_NOTE
+
+### Table 3 — Competing Measurement Models
+
+Models tested (each merging constructs progressively):
+1. Hypothesized k-factor model (baseline)
+2. Alternative models (merge theoretically similar constructs)
+3. Single-factor model (all items → one latent)
+
+Columns: Model | χ²(df) | ΔCFI | ΔRMSEA | CFI | TLI | RMSEA | Note
+Note: label baseline as "Hypothesized model"; flag best fit.
+
+### Table 4 — Structural Model Results
+
+Columns: Path | B | SE | β | z | p | 95% CI | Supported? | R²
+- Group rows by dependent variable (bold group header row)
+- Use `ABBREV_LABELS` (abbreviations) in path notation: "ES → PFC-AI"
+- Control variable paths are omitted from the table; mention in Notes:
+  "Note. Control variables (age, gender, education, income, employment, marital status)
+   were regressed on all endogenous constructs; paths not shown. [ABBREV_NOTE]"
+- R² shown in the group header row for each DV, not repeated per path
+
+### Table 5 — Bootstrapped Indirect Effects
+
+Columns: Specific Indirect Effect | B | Boot SE | 95% CI | p | β
+- Bootstrap B = 5,000 resamples; percentile CI; Delta-method p-values
+- Use `ABBREV_LABELS` in path notation with → arrows
+- Group by IV; include total indirect effect per IV
+- Note: "Note. Indirect effects estimated via parametric bootstrap (B = 5,000).
+   95% confidence intervals are percentile-based. [ABBREV_NOTE]"
+
+### Table 6 — Moderation Results
+
+Two panels:
+**Panel A — Hierarchical OLS Regression**
+Columns: Predictor | Model 1 B | Model 1 SE | Model 2 B | Model 2 SE | β | t | p | 95% CI
+Row order: controls (summarized), X_c, W_c, X_c × W_c
+Report ΔR² and its significance for Model 2.
+
+**Panel B — Simple Slopes**
+Columns: Level of W | b | SE | t | p | Sig.
+Rows: Low W (M − 1SD = XX), Mean W (M = XX), High W (M + 1SD = XX)
+
+Use `ABBREV_LABELS` for X, W, Y labels throughout. Include original-scale W values in row headers.
+
+### Figure 1 — Conceptual Model Diagram
+
+Draw a conceptual (not statistical) path diagram showing:
+- IV box(es) on the left
+- Mediator box(es) in the middle
+- DV box on the right
+- Moderator box below the mediator-to-DV path (diamond-on-path convention)
+
+Box labels use `CONSTRUCT_LABELS` (full names with abbreviation in parentheses).
+Use `matplotlib` / `matplotlib.patches`. Black borders, white fill, no shading.
+Save as `Figure1_ConceptualModel.png` at 300 dpi.
+
+### Figure 2 — Interaction Plot
+
+Plot simple slopes of X on Y at three levels of W (Low/Mean/High).
+- x-axis: X (original scale, uncentered values from −1SD to +1SD of X)
+- y-axis: Y (predicted factor score)
+- Three lines labeled by W level: "Low [W_abbrev] (M − 1SD = XX)", etc.
+- Use `ABBREV_LABELS` in axis labels and legend title
+- Save as `Figure2_InteractionPlot.png` at 300 dpi
+
+### DataAnalysis_EN.docx and DataAnalysis_CN.docx
+
+Two Word documents containing a complete write-up of all results:
+
+**Structure:**
+1. Measurement Model (CFA fit indices, AVE, CR, reliability; reference Table 2 and Table 3)
+2. Structural Model (path coefficients, R², model fit; reference Table 4)
+3. Indirect Effects (bootstrap CIs, mediation type; reference Table 5)
+4. Moderation (interaction term significance, simple slopes; reference Table 6 and Figure 2)
+
+**Formatting:**
+- Times New Roman 12pt, double-spaced, 1-inch margins
+- APA 7th edition in-text citations where needed
+- Use `CONSTRUCT_LABELS` (full names on first mention), then `ABBREV_LABELS` thereafter
+- Report statistics as: β = .XX, SE = .XX, z = X.XX, p = .XXX, 95% CI [.XX, .XX]
+- CN version: translate all text to Chinese; keep all statistics and table/figure references
+  in the same format; use Chinese academic phrasing conventions
+
+Save both documents to `your-project/output/sem/<model_name>/`.
 
 ---
 
 # Error Handling
 
-- **Convergence failure** — suggest checking for multicollinearity, reducing model complexity,
-  or using a different estimator (MLR instead of ML)
-- **Negative variance (Heywood case)** — flag the problematic indicator, suggest removing it
-  or constraining the variance
-- **Poor fit (CFI < .90)** — automatically run MI optimization loop (same-scale residual
-  covariances only, max 10 additions). Report all added parameters and their MI values.
-  If CFI still < .90 after exhausting same-scale candidates, flag to user and ask whether
-  to consider cross-scale MIs (with strong theoretical caution) or simplify the model
-- **Small sample** (N < 200) — warn that SEM requires adequate sample size; suggest bootstrapping
+- **Convergence failure** — check for multicollinearity (VIF > 10), reduce model complexity,
+  or switch to MLR estimator. Report the error and ask user how to proceed.
+- **Negative variance / Heywood case** — flag the problematic indicator, suggest removing it
+  or constraining its variance to a small positive value (e.g., 0.001).
+- **Poor fit (CFI < .90) after MI loop** — if 10 same-scale additions exhausted and CFI still
+  < .90, report best CFI reached and ask: "继续尝试跨构念残差协方差（理论风险较高）？还是简化模型？"
+- **Bootstrap failure rate > 20%** — warn user that too many bootstrap samples failed to
+  converge; consider reducing B or using a simpler bootstrap strategy.
+- **Small sample (N < 200)** — warn that CB-SEM requires adequate sample size; recommend
+  bootstrapping and note that results should be interpreted with caution.
+- **Factor score extraction failure** — fall back to computing weighted sum scores using
+  standardized loadings as weights; note this approximation in the output.
 
 ---
 
@@ -476,4 +676,7 @@ Outputs saved to `your-project/output/sem/moderation/`:
 - Report standardized coefficients (β) in tables and diagrams; unstandardized (B) in footnotes.
 - Use APA 7th edition table formatting for all outputs.
 - Remind users that SEM results are correlational — caution against causal language unless
-  the study design supports it.
+  the study design supports it (longitudinal, experimental, or cross-lagged design).
+- Control variables are always mean-centered before entry. Their paths are estimated but
+  suppressed from output tables — always mention them in table Notes.
+- The ABBREV_NOTE string must appear in the Notes of every table that uses abbreviations.
