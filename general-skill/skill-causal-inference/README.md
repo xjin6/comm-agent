@@ -1,6 +1,6 @@
 # skill-causal-inference
 
-> **v0.2.0** · Updated 2026-04-17 · `causal-inference`
+> **v0.3.0** · Updated 2026-04-18 · `causal-inference`
 
 Diagnoses feasibility of quasi-experimental causal inference methods (DID, PSM, PSW, IV, RDD) for a given dataset or research idea, runs applicable methods, and outputs publication-ready three-line Word tables and diagnostic plots. Supports both R (default) and Python.
 
@@ -29,26 +29,26 @@ Say "帮我做因果推断", "能用 DID 吗", "run causal inference", or descri
 
 ## Output
 
-All files saved to `your-project/project-{name}/output/`:
+Files saved to `your-project/project-{name}/output/causal-inference/`:
 
-| File | Description |
+| Path | Description |
 | --- | --- |
 | `causal_feasibility.txt` | Method diagnosis and assumption check report |
-| `table_did_descriptive.docx` | Descriptive statistics (overall + by treatment group) |
-| `table_did_main.docx` | Main DID regression table (5-column progressive) |
-| `table_did_robustness.docx` | Placebo and robustness checks |
-| `table_causal_psm.docx` | PSM outcome regression table |
-| `table_causal_psw.docx` | PSW outcome regression table |
-| `table_iv.docx` | IV regression table (2SLS) |
-| `table_rdd_main.docx` | RDD estimates table |
-| `fig_did_trends.png` | Treatment vs control raw outcome trends |
-| `fig_did_eventstudy.png` | Event-study plot with 95% CI |
-| `fig_psm_balance.png` | Love plot (SMD before/after matching) |
-| `fig_psm_overlap.png` | Propensity score overlap |
-| `fig_psw_balance.png` | Weighted balance plot |
-| `fig_iv_firststage.png` | First-stage fit scatter |
-| `fig_rdd_main.png` | RDD scatter + local polynomial fit |
-| `fig_rdd_density.png` | McCrary density test plot |
+| `did/table_did_descriptive.docx` | Descriptive statistics (overall + by treatment group) |
+| `did/table_did_main.docx` | Main DID regression table (5-column progressive) |
+| `did/table_did_robustness.docx` | Placebo and robustness checks |
+| `did/fig_did_trends.png` | Treatment vs control raw outcome trends |
+| `did/fig_did_eventstudy.png` | Event-study plot with 95% CI |
+| `psm/table_causal_psm.docx` | PSM outcome regression table |
+| `psm/fig_psm_balance.png` | Love plot (SMD before/after matching) |
+| `psm/fig_psm_overlap.png` | Propensity score overlap |
+| `psw/table_causal_psw.docx` | PSW outcome regression table |
+| `psw/fig_psw_balance.png` | Weighted balance plot |
+| `iv/table_iv.docx` | IV regression table (2SLS) |
+| `iv/fig_iv_firststage.png` | First-stage fit scatter |
+| `rdd/table_rdd_main.docx` | RDD estimates table |
+| `rdd/fig_rdd_main.png` | RDD scatter + local polynomial fit |
+| `rdd/fig_rdd_density.png` | McCrary density test plot |
 
 Scripts saved to `your-project/project-{name}/scripts/causal_{method}.R`.
 

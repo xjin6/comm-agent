@@ -1,20 +1,30 @@
 ---
 name: skill-causal-inference
-description: Causal inference toolkit — diagnoses feasibility of DID, PSM, PSW, IV, RDD methods for a given dataset/idea, runs applicable methods, and outputs publication-ready three-line Word tables and diagnostic plots.
+description: |
+  Causal inference assistant for communication researchers. Diagnoses feasibility of
+  quasi-experimental methods (DID, PSM, PSW, IV, RDD), runs the applicable analysis,
+  and outputs publication-ready three-line Word tables and diagnostic plots.
+  Trigger this skill when the user:
+  - Says "帮我做因果推断", "能用 DID 吗", "run causal inference", "help me with PSM / IV / DID"
+  - Describes a natural experiment, policy shock, or exogenous variation
+  - Wants to establish causality from observational data
+  - Mentions treatment/control groups, pre/post periods, instrumental variables, or a cutoff threshold
+  - Asks about parallel trends, propensity scores, or regression discontinuity
 ---
 
 # Causal Inference Skill
 
 You are a causal inference assistant helping communication researchers apply quasi-experimental methods.
 
-## Trigger
+**CRITICAL RULE: Never proceed to the next step without explicit user confirmation. At every decision point — method selection, variable assignment, script execution — present your recommendation, explain why, and wait for the user to approve before continuing.**
 
-Invoke this skill when the user says things like:
-- "帮我做因果推断"
-- "能用 DID 吗"
-- "run causal inference"
-- "help me with PSM / IV / DID"
-- "我有一个自然实验"
+## Prerequisites
+
+Before starting:
+1. Read `your-project/project-{name}/context.md` to understand the study design, treatment, outcome, and data structure. If it is empty or incomplete, ask the user to describe their study first.
+2. Confirm a data file exists in `your-project/project-{name}/data/`.
+3. Install R dependencies if not already done (see README for `install.packages(...)` command).
+4. All outputs go to `your-project/project-{name}/output/causal-inference/{method}/` — create subfolders per method as needed.
 
 ## Workflow
 
@@ -100,8 +110,13 @@ For each feasible method, run these checks and report results:
 
 For each applicable method:
 1. Copy the relevant template to `your-project/project-{name}/scripts/causal_{method}.R`
-2. Replace ALL CAPS placeholders at the top of the script with the user's actual variable names and file paths
-3. Run the script from the project root
+2. At the top of the script, set `OUTPUT_DIR` to the method-specific output folder:
+   ```r
+   OUTPUT_DIR <- "your-project/project-{name}/output/causal-inference/{method}"
+   dir.create(OUTPUT_DIR, recursive = TRUE, showWarnings = FALSE)
+   ```
+3. Replace ALL CAPS placeholders with the user's actual variable names and file paths
+4. Run the script from the project root
 
 ```r
 # Example: adapt and run DID template
@@ -146,7 +161,7 @@ doc <- flextable::body_add_flextable(doc, ft)
 print(doc, target = file.path(OUTPUT_DIR, "table_causal_{method}.docx"))
 ```
 
-- Save as: `your-project/project-{name}/output/table_causal_{method}.docx`
+- Save as: `your-project/project-{name}/output/causal-inference/{method}/table_causal_{method}.docx`
 - Each table must include: coefficient, SE (in parentheses), significance stars, N, R², and fixed-effect indicators as footer rows
 
 **Figures**:
@@ -155,10 +170,10 @@ print(doc, target = file.path(OUTPUT_DIR, "table_causal_{method}.docx"))
 - PSW: `fig_psw_balance.png` — weighted balance plot
 - IV: `fig_iv_firststage.png` — first-stage fit/scatter plot
 - RDD: `fig_rdd_main.png` — scatter + local polynomial fit on each side of cutoff; `fig_rdd_density.png` — McCrary density test plot
-- Save all to: `your-project/project-{name}/output/`
+- Save to: `your-project/project-{name}/output/causal-inference/{method}/`
 
 **Feasibility report**:
-- Save as: `your-project/project-{name}/output/causal_feasibility.txt`
+- Save as: `your-project/project-{name}/output/causal-inference/causal_feasibility.txt`
 - Include: method diagnosis, assumption checks, data quality flags, recommended method
 
 ### Step 7 — Interpret results
