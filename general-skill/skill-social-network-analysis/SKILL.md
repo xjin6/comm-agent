@@ -111,12 +111,12 @@ def infer_structure(df):
 
 Present the detected format to the user and ask for confirmation:
 
-> "检测到你的数据格式为：**{format}**
+> "Detected data format: **{format}**
 >
-> - 行数: {N}，列数: {K}
-> - {描述关键列名和前几行预览}
+> - Rows: {N}, Columns: {K}
+> - {description of key column names and a preview of the first few rows}
 >
-> 这个判断正确吗？"
+> Is this correct?"
 
 If incorrect, ask the user to describe the structure and re-classify accordingly.
 
@@ -124,15 +124,15 @@ If incorrect, ask the user to describe the structure and re-classify accordingly
 
 Ask via `AskUserQuestion`:
 
-> "这个网络是有向还是无向的？"
-> - **有向 (Directed)** — 边有方向，如转发、关注、引用（推荐：社交媒体数据）
-> - **无向 (Undirected)** — 边无方向，如合作、共同提及（推荐：调查关系数据）
+> "Is this network directed or undirected?"
+> - **Directed** — edges have direction, e.g. repost, follow, citation (Recommended for social media data)
+> - **Undirected** — edges have no direction, e.g. collaboration, co-mention (Recommended for survey relational data)
 
 Ask via `AskUserQuestion`:
 
-> "边有权重吗？"
-> - **有权重 (Weighted)** — 边有强度值，如转发次数、互动频率（推荐：有 weight 列时）
-> - **无权重 (Unweighted)** — 边只表示是否存在关系
+> "Are the edges weighted?"
+> - **Weighted** — edges have a strength value, e.g. repost count, interaction frequency (Recommended when a `weight` column is present)
+> - **Unweighted** — edges represent presence/absence of a relationship only
 
 Store `IS_DIRECTED` and `IS_WEIGHTED` for all subsequent steps.
 
@@ -168,22 +168,22 @@ def build_network(df, structure, is_directed, is_weighted):
 
 After building the network, report:
 
-> "网络已构建完成：
+> "Network successfully constructed:
 >
-> | 指标 | 值 |
-> |------|----|
-> | 节点数 (Nodes) | {N} |
-> | 边数 (Edges) | {E} |
-> | 网络类型 | {Directed/Undirected}, {Weighted/Unweighted} |
-> | 平均度 (Avg Degree) | {avg_degree:.2f} |
-> | 网络密度 (Density) | {density:.4f} |
-> | 是否连通 | {connected/disconnected} — 最大连通分量包含 {lcc_n} 个节点 ({lcc_pct:.1f}%) |"
+> | Metric | Value |
+> |--------|-------|
+> | Nodes | {N} |
+> | Edges | {E} |
+> | Type | {Directed/Undirected}, {Weighted/Unweighted} |
+> | Avg Degree | {avg_degree:.2f} |
+> | Density | {density:.4f} |
+> | Connected | {connected/disconnected} — largest connected component contains {lcc_n} nodes ({lcc_pct:.1f}%) |"
 
 Ask whether to continue with the full network or restrict to the largest connected component (LCC).
 
 ### Step 1d: Survey Relational Data (who-knows-whom)
 
-If the data format is `survey` (e.g., Q: "请列出你认识的5个人"):
+If the data format is `survey` (e.g., "Please list 5 people you know"):
 
 1. Ask which columns contain the nominee names/IDs.
 2. Build a directed ego-network: respondent → each nominee they listed.
@@ -284,11 +284,11 @@ Save centrality indices to:
 Show top-10 nodes for each centrality measure in a summary table.
 
 Ask the user:
-> "要识别关键意见领袖 (KOL) 或核心节点吗？我可���根据综合排名帮你标记前N名节点。"
-> - **是 — 按综合排名识别** (Recommended)
-> - **是 — 只用 PageRank 排名**
-> - **是 — 只用入度排名**
-> - **否 — 跳过**
+> "Would you like to identify key opinion leaders (KOLs) or central nodes? I can rank the top-N nodes by composite score."
+> - **Yes — composite ranking across all centrality measures** (Recommended)
+> - **Yes — PageRank only**
+> - **Yes — in-degree only**
+> - **No — skip**
 
 If yes, compute a composite rank score:
 
@@ -315,11 +315,11 @@ Save to: `your-project/project-{name}/output/network/key_nodes.csv`
 
 Ask via `AskUserQuestion`:
 
-> "使用哪种社区检测算法？"
-> - **Louvain** — 基于模块度最优化，适合大型网络（Recommended）
-> - **Girvan-Newman** — 基于边介数，适合小型网络（<500节点）
-> - **Label Propagation** — 速度最快，结果有随机性
-> - **跳过社区检测**
+> "Which community detection algorithm would you like to use?"
+> - **Louvain** — modularity optimisation, suitable for large networks (Recommended)
+> - **Girvan-Newman** — edge betweenness, suitable for small networks (< 500 nodes)
+> - **Label Propagation** — fastest, results have some randomness
+> - **Skip community detection**
 
 For Louvain and Label Propagation, use Python (networkx/community):
 
@@ -351,11 +351,11 @@ comm_louvain <- cluster_louvain(g)
 ```
 
 Report:
-> "社区检测结果：
+> "Community detection results:
 >
-> - 检测到 **{n_communities}** 个社区
-> - 模块度 (Modularity) = {modularity:.4f}  （>0.3 为有意义的社区结构）
-> - 最大社区节点数: {max_size}，最小: {min_size}，平均: {avg_size:.1f}"
+> - Detected **{n_communities}** communities
+> - Modularity = {modularity:.4f}  (> 0.3 indicates meaningful community structure)
+> - Largest community: {max_size} nodes · Smallest: {min_size} · Average: {avg_size:.1f}"
 
 Save community membership to:
 `your-project/project-{name}/output/network/community_membership.csv`
@@ -413,10 +413,10 @@ nx.write_gexf(G, "your-project/project-{name}/output/network/sna/network_gephi.g
 
 Ask via `AskUserQuestion`:
 
-> "是否进行信息传播/级联分析？"
-> - **是 — 分析传播路径与级联结构**
-> - **是 — 计算传播深度与宽度**
-> - **否 — 跳过**
+> "Would you like to run information diffusion / cascade analysis?"
+> - **Yes — analyse propagation paths and cascade structure**
+> - **Yes — compute propagation depth and width**
+> - **No — skip**
 
 If yes, ask which node(s) represent the seed/origin of diffusion:
 
@@ -451,11 +451,11 @@ After all analyses are complete, ask the user which outputs to generate:
 
 Ask via `AskUserQuestion` (multi-select):
 
-> "你需要生成哪些输出文件？"
-> - **APA 三线表（Word）** — 描述性统计、中心性指数、社区检测结果
-> - **网络可视化图（PNG）** — 300 dpi 出版级网络图
-> - **Gephi 文件（.gexf）** — 用于交互式可视化探索
-> - **完整分析报告（Word）** — 所有表格和图合并为一份 APA 格式文档
+> "Which output files would you like to generate?"
+> - **APA three-line tables (Word)** — descriptive statistics, centrality indices, community detection results
+> - **Network visualisation plots (PNG)** — 300 dpi publication-ready figures
+> - **Gephi file (.gexf)** — for interactive network exploration
+> - **Full analysis report (Word)** — all tables and figures combined in one APA-formatted document
 
 Generate selected outputs using the `sna_output.py` script.
 
@@ -506,7 +506,7 @@ All outputs saved under `your-project/project-{name}/output/network/sna/`:
 
 If the user wants to compare networks across two groups (e.g., gender, platform, time period):
 
-**Ask FIRST:** "你想跨群体比较网络结构吗？���果是，请告诉我：1. 哪一列是分组变量？2. 要比较哪两个分组值？"
+**Ask FIRST:** "Would you like to compare network structures across two groups? If yes, please tell me: 1. Which column contains the group labels? 2. What are the two group values to compare?"
 
 Only ask this AFTER the main analysis is complete. Never auto-detect the grouping variable.
 
