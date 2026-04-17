@@ -20,6 +20,7 @@ Available skills:
 - `skill-structural-equation-modeling` — Specify, estimate, and interpret SEM models including CFA and path analysis
 - `skill-apa-reference-list` — Read literature files and generate an APA 7th edition reference list
 - `skill-quantitative-analysis` — End-to-end inferential statistics: ANOVA, t-tests, chi-squared, regression (linear/logistic/ordinal), and descriptive analysis on survey data
+- `skill-psychometric-network-analysis` — Cross-sectional GGM estimation, centrality indices, bootstrap stability testing, network comparison (NCT), and cross-lagged panel network analysis (CLPNA)
 
 ## How to Use
 

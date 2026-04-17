@@ -23,3 +23,9 @@ openpyxl>=3.0.0
 scikit-learn>=1.1.0
 kmodes>=0.12.0
 pingouin>=0.5.0
+
+# skill-psychometric-network-analysis (Python output only; R packages installed separately)
+# R packages: qgraph, bootnet, NetworkComparisonTest, mlVAR, panelvar, networktools
+python-docx>=0.8.11
+openpyxl>=3.0.0
+pyreadstat>=0.1.9

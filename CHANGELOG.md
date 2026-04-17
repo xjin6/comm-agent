@@ -1,5 +1,19 @@
 # Changelog
 
+## [skill-psychometric-network-analysis] - 2026-04-17
+
+### Added
+- `skill-psychometric-network-analysis` v0.1.0 — new skill for psychometric network analysis
+- Cross-sectional GGM via EBICglasso (qgraph + bootnet); spring-layout network plot, edge weight matrix
+- Centrality indices: Strength, Betweenness, Closeness, Expected Influence, Bridge Centrality (networktools)
+- Bootstrap stability: edge-weight bootstrap + case-dropping subset bootstrap, CS-coefficients (bootnet)
+- Network Comparison Test (NCT): global strength and structure tests, edge-specific comparisons across two groups
+- CLPNA: mlVAR for ESM/intensive longitudinal data (temporal + contemporaneous + between-person networks); panelvar GMM for traditional panel surveys
+- Python output: APA three-line Word tables (6 tables), bilingual EN/CN write-up documents, multi-sheet Excel workbook
+- Authors: Xin Jin (@xjin6) and Sha Sarah QIU (sarahq2025@gmail.com)
+
+---
+
 ## [agent] - 2026-04-12 (2)
 
 ### Added

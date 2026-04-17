@@ -16,7 +16,8 @@ comm-agent/
 │   ├── skill-douyin-trending-topic-scraper/
 │   ├── skill-structural-equation-modeling/
 │   ├── skill-quantitative-analysis/
-│   └── skill-apa-reference-list/
+│   ├── skill-apa-reference-list/
+│   └── skill-psychometric-network-analysis/
 └── your-project/                   # Your personal workspace — intentionally empty
     └── project-{name}/             # Created by the agent when you start a project
         ├── context.md              # Describe your study here
@@ -46,6 +47,7 @@ Standalone, reusable skills for specific research tasks.
 | [skill-structural-equation-modeling](./general-skill/skill-structural-equation-modeling/) | v0.2.0 | EFA / CFA / Full SEM / Mediation / Moderation with MI optimization, item diagnostics, measurement quality tables, and APA publication tables |
 | [skill-apa-reference-list](./general-skill/skill-apa-reference-list/) | v0.1.0 | Read literature files and generate an APA 7th edition reference list |
 | [skill-quantitative-analysis](./general-skill/skill-quantitative-analysis/) | v0.1.0 | End-to-end inferential statistics: ANOVA, t-tests, chi-squared, regression, and descriptive analysis on survey data |
+| [skill-psychometric-network-analysis](./general-skill/skill-psychometric-network-analysis/) | v0.1.0 | Cross-sectional GGM, centrality indices, bootstrap stability (bootnet), NCT, and CLPNA (mlVAR + panelvar) |
 
 ## Getting Started
 
