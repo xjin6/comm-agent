@@ -29,7 +29,7 @@ Say "帮我做因果推断", "能用 DID 吗", "run causal inference", or descri
 
 ## Output
 
-All files saved to `projects/{name}/output/`:
+All files saved to `your-project/project-{name}/output/`:
 
 | File | Description |
 | --- | --- |
@@ -50,7 +50,7 @@ All files saved to `projects/{name}/output/`:
 | `fig_rdd_main.png` | RDD scatter + local polynomial fit |
 | `fig_rdd_density.png` | McCrary density test plot |
 
-Scripts saved to `projects/{name}/scripts/causal_{method}.R`.
+Scripts saved to `your-project/project-{name}/scripts/causal_{method}.R`.
 
 ## Installation
 

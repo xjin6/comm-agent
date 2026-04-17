@@ -99,20 +99,20 @@ For each feasible method, run these checks and report results:
 | `causal_rdd.R` | RDD (McCrary test, rdrobust, bandwidth sensitivity, placebo cutoffs, donut) |
 
 For each applicable method:
-1. Copy the relevant template to `projects/{name}/scripts/causal_{method}.R`
+1. Copy the relevant template to `your-project/project-{name}/scripts/causal_{method}.R`
 2. Replace ALL CAPS placeholders at the top of the script with the user's actual variable names and file paths
 3. Run the script from the project root
 
 ```r
 # Example: adapt and run DID template
-source("projects/{name}/scripts/causal_did.R")
+source("your-project/project-{name}/scripts/causal_did.R")
 ```
 
 Custom code can also be generated when the template doesn't match the user's exact setup — use the template as the starting point and extend as needed.
 
 If Python is chosen, generate a custom script instead — no bundled Python templates exist.
 
-Save scripts to: `projects/{name}/scripts/causal_{method}.py`
+Save scripts to: `your-project/project-{name}/scripts/causal_{method}.py`
 
 ### Step 6 — Output
 
@@ -146,7 +146,7 @@ doc <- flextable::body_add_flextable(doc, ft)
 print(doc, target = file.path(OUTPUT_DIR, "table_causal_{method}.docx"))
 ```
 
-- Save as: `projects/{name}/output/table_causal_{method}.docx`
+- Save as: `your-project/project-{name}/output/table_causal_{method}.docx`
 - Each table must include: coefficient, SE (in parentheses), significance stars, N, R², and fixed-effect indicators as footer rows
 
 **Figures**:
@@ -155,10 +155,10 @@ print(doc, target = file.path(OUTPUT_DIR, "table_causal_{method}.docx"))
 - PSW: `fig_psw_balance.png` — weighted balance plot
 - IV: `fig_iv_firststage.png` — first-stage fit/scatter plot
 - RDD: `fig_rdd_main.png` — scatter + local polynomial fit on each side of cutoff; `fig_rdd_density.png` — McCrary density test plot
-- Save all to: `projects/{name}/output/`
+- Save all to: `your-project/project-{name}/output/`
 
 **Feasibility report**:
-- Save as: `projects/{name}/output/causal_feasibility.txt`
+- Save as: `your-project/project-{name}/output/causal_feasibility.txt`
 - Include: method diagnosis, assumption checks, data quality flags, recommended method
 
 ### Step 7 — Interpret results
