@@ -1,5 +1,22 @@
 # Changelog
 
+## [skill-social-network-analysis] - 2026-04-17
+
+### Added
+- `skill-social-network-analysis` v0.1.0 — new skill for social network analysis
+- Network construction from edge lists, adjacency matrices, survey relational data, and social media scrape output
+- Descriptive metrics: nodes, edges, density, average degree, clustering coefficient, average path length, diameter
+- Centrality analysis: Degree (in/out), Betweenness, Closeness, Eigenvector, PageRank
+- Key node / KOL identification via composite centrality ranking
+- Community detection: Louvain, Girvan-Newman, Label Propagation; modularity score
+- Information diffusion / cascade analysis: BFS cascade trees, depth, width, structural virality
+- Network comparison: structural metrics + QAP significance test (sna package)
+- Python output: APA three-line Word tables (5 tables), combined report, Gephi .gexf export
+- R output: ggraph network plot, degree distribution, community structure plot (300 dpi)
+- Author: Sha Sarah QIU (@sarahqiu-lab)
+
+---
+
 ## [skill-psychometric-network-analysis] - 2026-04-17
 
 ### Added

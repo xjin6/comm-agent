@@ -29,3 +29,8 @@ pingouin>=0.5.0
 python-docx>=0.8.11
 openpyxl>=3.0.0
 pyreadstat>=0.1.9
+
+# skill-social-network-analysis (Python output; R packages installed separately)
+# R packages: igraph, ggraph, tidygraph, RColorBrewer, ggplot2, scales, sna
+networkx>=3.0
+python-louvain>=0.16

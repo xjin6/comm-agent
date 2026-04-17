@@ -17,7 +17,8 @@ comm-agent/
 │   ├── skill-structural-equation-modeling/
 │   ├── skill-quantitative-analysis/
 │   ├── skill-apa-reference-list/
-│   └── skill-psychometric-network-analysis/
+│   ├── skill-psychometric-network-analysis/
+│   └── skill-social-network-analysis/
 └── your-project/                   # Your personal workspace — intentionally empty
     └── project-{name}/             # Created by the agent when you start a project
         ├── context.md              # Describe your study here
@@ -48,6 +49,7 @@ Standalone, reusable skills for specific research tasks.
 | [skill-apa-reference-list](./general-skill/skill-apa-reference-list/) | v0.1.0 | Read literature files and generate an APA 7th edition reference list |
 | [skill-quantitative-analysis](./general-skill/skill-quantitative-analysis/) | v0.1.0 | End-to-end inferential statistics: ANOVA, t-tests, chi-squared, regression, and descriptive analysis on survey data |
 | [skill-psychometric-network-analysis](./general-skill/skill-psychometric-network-analysis/) | v0.1.0 | Cross-sectional GGM, centrality indices, bootstrap stability (bootnet), NCT, and CLPNA (mlVAR + panelvar) |
+| [skill-social-network-analysis](./general-skill/skill-social-network-analysis/) | v0.1.0 | Social network construction, centrality, community detection (Louvain/Girvan-Newman), KOL identification, diffusion/cascade analysis, and QAP network comparison |
 
 ## Getting Started
 

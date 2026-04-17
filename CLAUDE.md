@@ -21,6 +21,7 @@ Available skills:
 - `skill-apa-reference-list` — Read literature files and generate an APA 7th edition reference list
 - `skill-quantitative-analysis` — End-to-end inferential statistics: ANOVA, t-tests, chi-squared, regression (linear/logistic/ordinal), and descriptive analysis on survey data
 - `skill-psychometric-network-analysis` — Cross-sectional GGM estimation, centrality indices, bootstrap stability testing, network comparison (NCT), and cross-lagged panel network analysis (CLPNA)
+- `skill-social-network-analysis` — Social network construction from edge lists / adjacency matrices / survey data / social media scrapes; descriptive metrics, centrality, community detection (Louvain/Girvan-Newman), KOL identification, information diffusion/cascade analysis, and network comparison (QAP)
 
 ## How to Use
 
