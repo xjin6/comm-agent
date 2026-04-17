@@ -95,6 +95,8 @@ Open `sem_interactive.html` in any browser:
 
 **Xin Jin** (@xjin6) · xjin6@outlook.com
 
+**Sha Sarah QIU** · sarahq2025@gmail.com
+
 ## License
 
 CC BY-NC-ND 4.0
