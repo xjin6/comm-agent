@@ -4,7 +4,7 @@ description: |
   Structural equation modeling (SEM) assistant for communication research. Guides researchers
   step-by-step through the full analysis pipeline: EFA → CFA → Full SEM → Mediation (with
   PROCESS-style model templates) → Moderation. Produces APA-style tables, path diagrams, and
-  bilingual (EN + CN) write-up Word documents saved to your-project/output/.
+  bilingual (EN + CN) write-up Word documents saved to your-project/project-{name}/output/sem/.
   Trigger this skill when the user:
   - Wants to run SEM, path analysis, CFA, or EFA
   - Mentions latent variables, constructs, factors, or measurement models
@@ -35,15 +35,15 @@ When this skill is triggered, immediately tell the user what they need to prepar
 
 > "Before we begin, please make sure the following files are in the right folders:
 >
-> 1. **Data file** → `your-project/data/` (.csv or .xlsx)
-> 2. **Questionnaire / scale documentation** → `your-project/knowledge/` (.pdf, .docx, or .md)
+> 1. **Data file** → `your-project/project-{name}/data/` (.csv or .xlsx)
+> 2. **Questionnaire / scale documentation** → `your-project/project-{name}/knowledge/` (.pdf, .docx, or .md)
 >    — include item lists, source scale names, and theoretical rationale for each construct
-> 3. **Study background** → `your-project/context.md` (research questions, hypotheses, construct list)
+> 3. **Study background** → `your-project/project-{name}/context.md` (research questions, hypotheses, construct list)
 >    — if the file is empty, I will guide you through filling it in; no need to edit it manually
 >
 > Once everything is ready, let me know and I will start loading the data."
 
-Then read `your-project/context.md` and all files in `your-project/knowledge/`. If `context.md`
+Then read `your-project/project-{name}/context.md` and all files in `your-project/project-{name}/knowledge/`. If `context.md`
 is empty or incomplete, ask the user about their study through conversation — research question,
 data source, constructs, hypotheses — and write their answers into `context.md` for them.
 
@@ -53,7 +53,7 @@ Install dependencies from the agent root: `pip install -r requirements.txt`
 
 ## Step 1: Load and Inspect Data
 
-Identify the data file in `your-project/data/`. If multiple files exist, use `AskUserQuestion`
+Identify the data file in `your-project/project-{name}/data/`. If multiple files exist, use `AskUserQuestion`
 to let the user pick one. If the file is Excel with multiple sheets, list them and ask which
 sheet to use.
 
@@ -70,7 +70,7 @@ If missing data exceeds 20% for any variable, ask via `AskUserQuestion`:
 
 ### Step 1b: Auto-Identify Control Variables
 
-After loading, scan `your-project/knowledge/` and the column names to identify likely
+After loading, scan `your-project/project-{name}/knowledge/` and the column names to identify likely
 demographic/control variables (e.g., age, gender, education, income, employment, marital
 status, media use frequency). Present your best guess to the user:
 
@@ -140,9 +140,9 @@ Run EFA in Python using `factor_analyzer` library. For each construct analyzed, 
 - **Cronbach's α** — reliability for each emerged factor
 
 Interpret what each factor represents based on which items load on it. Suggest factor names
-grounded in the study context from `your-project/context.md` and `your-project/knowledge/`.
+grounded in the study context from `your-project/project-{name}/context.md` and `your-project/project-{name}/knowledge/`.
 
-Save outputs to `your-project/output/sem/efa/`:
+Save outputs to `your-project/project-{name}/output/sem/efa/`:
 - `efa_loadings.csv` / `efa_loadings_table.xlsx` — full loading matrix (APA-formatted)
 - `scree_plot.png` — scree plot for each construct analyzed
 
@@ -174,7 +174,7 @@ If the user selects per-scale check:
 
 ## CFA Step 2: Full Measurement Model
 
-Based on `your-project/context.md`, `your-project/knowledge/`, and/or EFA results, propose
+Based on `your-project/project-{name}/context.md`, `your-project/project-{name}/knowledge/`, and/or EFA results, propose
 the full measurement model — all constructs and their items together. Present clearly:
 
 ```
@@ -259,7 +259,7 @@ If fit is already ≥ .90 on first run: skip the loop entirely.
 
 ## CFA Step 4: Output — Table 2 (Measurement Quality)
 
-Save to `your-project/output/sem/cfa/`:
+Save to `your-project/project-{name}/output/sem/cfa/`:
 - `cfa_fit_indices.csv` — χ², df, CFI, TLI, RMSEA
 - `cfa_loadings.xlsx` — standardized factor loadings (β, SE, p) for all items
 - `cfa_path_diagram.png` / `.html` — path diagram (see Path Diagram Specs below)
@@ -541,7 +541,7 @@ Ask via `AskUserQuestion` (multiSelect: true):
   - "DataAnalysis_CN.docx — Chinese write-up of all results"
 
 Generate only what the user selects. Save all outputs to
-`your-project/output/sem/<model_name>/`.
+`your-project/project-{name}/output/sem/<model_name>/`.
 
 ### Table Formatting Rules (all tables)
 
@@ -650,7 +650,7 @@ Two Word documents containing a complete write-up of all results:
 - CN version: translate all text to Chinese; keep all statistics and table/figure references
   in the same format; use Chinese academic phrasing conventions
 
-Save both documents to `your-project/output/sem/<model_name>/`.
+Save both documents to `your-project/project-{name}/output/sem/<model_name>/`.
 
 ---
 
@@ -673,7 +673,7 @@ Save both documents to `your-project/output/sem/<model_name>/`.
 
 # Important Notes
 
-- Always interpret results in the context of the user's study from `your-project/context.md`.
+- Always interpret results in the context of the user's study from `your-project/project-{name}/context.md`.
 - Report standardized coefficients (β) in tables and diagrams; unstandardized (B) in footnotes.
 - Use APA 7th edition table formatting for all outputs.
 - Remind users that SEM results are correlational — caution against causal language unless
