@@ -1,50 +1,51 @@
 # Changelog
 
-## [agent] - 2026-04-16
+## [agent] - 2026-04-12 (2)
+
+### Added
+- `CLAUDE.md` — Git Convention section: require explicit Author+Committer via env vars, GitHub ID as author name, correct gh account switching, no Claude co-author trailers
+- `CLAUDE.md` — Skill Installation Convention section: symlink `general-skill/skill-{name}` → `~/.claude/skills/skill-{name}` only; no project-level installs
+
+---
+
+## [agent] - 2026-04-12
 
 ### Changed
-- `skill-structural-equation-modeling` v0.4.0 — full skill redesign:
-  - **Step 0 — Startup guidance** (new): before any analysis, agent tells user exactly which files to prepare (`your-project/data/`, `your-project/knowledge/`, `your-project/context.md`) and waits for confirmation
-  - **Auto-identify control variables** (new): scans `knowledge/` files and column names to infer `CTRL_MAP`; presents inferred map to user via multiSelect for confirmation; mean-centers all controls; regresses all endogenous latents on controls in every model; control paths suppressed from output tables
-  - **Per-scale CFA check** (new optional step): before running the full measurement model, user may run a quick single-construct CFA for each scale to catch item problems early
-  - **MI optimization loop switched to `calc_sigma()` residuals** (updated): replaced `calc_mi()` with residual covariance matrix approach (`sigma_obs − sigma_implied`); standardized residuals ranked to identify highest within-subscale pairs; ΔCFI ≥ .001 gate per addition; max 10 iterations
-  - **PROCESS model template picker for mediation** (new): instead of free-form spec, user selects from Models 4/6/7/8/14/58 with structural diagram preview; agent generates semopy spec from template
-  - **Parametric bootstrap indirect effects** (new): B = 5,000 resamples, seed = 42, percentile 95% CI, Delta-method p-values; replaces manual Sobel-only reporting
-  - **Two-step hierarchical OLS moderation** (new): Step 1 = controls + main effects; Step 2 = adds interaction term; simple slopes at −1SD / mean / +1SD of W; optional LMS robustness check via semopy product indicator
-  - **Construct labeling system** (new): `CONSTRUCT_LABELS` (full names for figures/table rows), `ABBREV_LABELS` (abbreviations for table headers), `ABBREV_NOTE` (full footnote string); applied consistently across all outputs
-  - **Expanded output menu** (new/expanded): multiSelect Tables 1–6, Figures 1–2, and bilingual write-up (DataAnalysis_EN.docx + DataAnalysis_CN.docx); generates only what user selects
-  - **Restructured entry point** (redesigned): replaced flat analysis-type picker with a guided EFA → CFA → Mediation → Moderation flow with explicit gating between stages
+- `your-project/` cleared — removed all sample/test project folders; folder is now intentionally empty
+- `README.md` updated — Getting Started section explicitly states `your-project/` is empty by design; directory tree simplified to a single `project-{name}/` template
+- Removed `your-project/README.md` — project creation flow consolidated into root README only
+- `CLAUDE.md` reviewed and tightened:
+  - Added fallback for empty `general-knowledge/` — answer from training knowledge if no file exists
+  - Added empty-project-folder handling — agent prompts user to create a project when `your-project/` is empty
+  - Removed redundant folder structure listing from "How to Use"; now references Project Convention section
+  - Maintenance Rule: explicitly names `## What's Available` as the section to update; clarifies `requirements.txt` format as Python pip (`package>=version`)
 
 ---
 
 ## [agent] - 2026-04-08
 
 ### Changed
-- `skill-structural-equation-modeling` v0.3.0 — multiple enhancements:
-  - **Prerequisites**: agent now reads all files in `your-project/knowledge/` (questionnaires,
-    literature notes) before starting, to ground analysis in study background
-  - **CFA Step 2b** (new): item diagnostic — flags any item with λ < .50, shows estimated
-    post-deletion AVE, asks user via multiSelect whether to delete or retain; protects
-    constructs from dropping below 3 indicators
-  - **Auto MI optimization loop**: if CFI < .90 after initial fit, automatically adds same-scale
-    residual covariances one at a time (highest MI first) until CFI ≥ .90 or 10 additions reached;
-    applies to both CFA and full SEM
-  - **Measurement quality table**: CFA and SEM now always output `cfa/sem_measurement_quality.docx`
-    with k, M, SD, α (Cronbach), ω (McDonald's), CR, AVE, and latent correlation matrix
-  - **SEM Step 5** (new): after core outputs, asks user via multiSelect which APA publication
-    tables to generate (Table 1 Demographics, Table 2 Validity, Table 3 Competing Models,
-    Table 4 Structural Paths, Table 5 Bootstrap Indirect Effects); saves as .docx landscape
-  - **Path diagram specs updated**: black borders, white fill (no color); solid lines = significant
-    (p < .05), dashed = non-significant; direct IV→DV paths routed as arcs/bent lines to avoid
-    occluding mediator boxes; both `.png` (300 dpi) and `.html` outputs
-  - **Frontmatter**: removed SRMR (not available in semopy); replaced with GFI in fit index list
+- `skill-structural-equation-modeling` v0.1.0 → v0.2.0 — MI optimization loop (auto-adds
+  same-scale residual covariances until CFI ≥ .90), item diagnostic (flags λ < .50),
+  measurement quality table (α, ω, CR, AVE, latent correlations), optional APA publication
+  tables (demographics, validity, competing models, structural paths, bootstrap mediation),
+  updated path diagram specs (black/white, solid/dashed significance lines)
 
 ---
 
-
+## [agent] - 2026-04-07
 
 ### Added
-- `skill-xiaohongshu-scraper` v0.1.0 — scrape notes, comments, and user profiles
+- `skill-douyin-trending-topic-scraper` v0.1.0 — scrape Douyin trending topics list (热搜榜)
+  and videos under specific topics; three modes: trending / topic / all;
+  no login required; outputs rank, hot value, video count, engagement metrics to CSV/JSON
+
+---
+
+## [agent] - 2026-04-01
+
+### Added
+- `skill-xiaohongshu-search-scraper` v0.1.0 — scrape notes, comments, and user profiles
   from 小红书 by keyword; cookie-based auth, sort/filter options, incremental saving
 
 ---
@@ -52,9 +53,8 @@
 ## [agent] - 2026-03-31 (3)
 
 ### Added
-- `skill-quantitative-analysis` v1.2 — imported from gim-home/studio8researchskills
-  Covers end-to-end inferential statistics: ANOVA, Tukey HSD, t-tests, chi-squared,
-  linear/logistic/ordinal regression, descriptive analysis, and Excel export
+- `skill-quantitative-analysis` v1.2 — end-to-end inferential statistics: ANOVA, Tukey HSD,
+  t-tests, chi-squared, linear/logistic/ordinal regression, descriptive analysis, and Excel export
 
 ---
 

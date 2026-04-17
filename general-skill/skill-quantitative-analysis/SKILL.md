@@ -26,16 +26,16 @@ You are helping a researcher perform end-to-end quantitative and inferential sta
 ## Prerequisites
 
 Before starting:
-1. Read `your-project/context.md` to understand the study design, variables, and hypotheses.
-2. Confirm a data file exists in `your-project/data/` (CSV or Excel).
+1. Read `your-project/project-{name}/context.md` to understand the study design, variables, and hypotheses.
+2. Confirm a data file exists in `your-project/project-{name}/data/` (CSV or Excel).
 3. Install dependencies from the agent root: `pip install -r requirements.txt`
-4. All outputs go to `your-project/output/quantitative-analysis/` — create this folder if needed.
+4. All outputs go to `your-project/project-{name}/output/quantitative-analysis/` — create this folder if needed.
 
-## Word Export (APA 三线表)
+## Word Export (APA Three-Line Table)
 
 For any results table, also export to a Word document with APA formatting:
 - **Font**: Times New Roman 12 pt throughout
-- **Table style**: 三线表 — top border (1.5 pt), header bottom border (1 pt), table bottom border (1.5 pt), no vertical lines
+- **Table style**: three-line table — top border (1.5 pt), header bottom border (1 pt), table bottom border (1.5 pt), no vertical lines
 - **Table title**: italic, above the table (APA convention)
 - **Table note**: italic 10 pt, below the table (e.g. significance codes)
 
@@ -50,7 +50,7 @@ export_to_word(
         'Table 2. Correlation Matrix':                     correlation_df,
         'Table 3. Regression Coefficients':                regression_df,
     },
-    filepath='your-project/output/quantitative-analysis/results.docx',
+    filepath='your-project/project-{name}/output/quantitative-analysis/results.docx',
     title='Study Title: Statistical Results',   # shown as document heading
     notes={
         'Table 1. Descriptive Statistics and Reliability':
@@ -70,7 +70,7 @@ export_to_word(
 - Bold header row, italic table titles, italic 10 pt notes
 
 Always offer Word export at the end of Phase 7 alongside the Excel export:
-> "Would you like a Word document with APA-formatted tables (Times New Roman 12pt, 三线表)?"
+> "Would you like a Word document with APA-formatted tables (Times New Roman 12pt, three-line table style)?"
 
 ## Python setup
 
@@ -183,33 +183,6 @@ Once confirmed:
 
 ---
 
-## Phase 0.5: Survey Handoff Recognition
-
-If the input includes a structured `Survey → Analysis Handoff` block from `survey-research`, parse it before Phase 1 and present a one-line confirmation:
-
-> "I see this is a **[survey purpose]** handoff. I'll run the following named analysis patterns in addition to the standard workflow: [list]. Let me know if you'd like to adjust."
-
-**Routing by survey purpose:**
-
-| Survey Purpose | Named Patterns to Run |
-|---|---|
-| **Prioritization** | MAU/DAU Estimation (if frequency question present) |
-| **Measurement** | Satisfaction Driver Analysis + Priority Matrix |
-| **User Profile & Growth** | Satisfaction Driver Analysis + Priority Matrix; Growth Signal Detection |
-| **Generative** | Format Confidence Gap; Dual-Perspective Alignment (if two-role structure present) |
-| **Segmentation** | Route to `clustering-analysis` — not this skill |
-
-Extract and carry forward from the handoff block:
-- `Survey purpose` → determines which named patterns apply
-- `Grouping variable` → use as the Phase 3 grouping variable
-- `Satisfaction DV` / `Satisfaction predictors` → pre-fill for Satisfaction Driver Analysis
-- `Growth signal candidates` → pre-fill behavioral columns for Growth Signal Detection
-- `Variables of interest` → scope Phase 0 topic plan
-
-If no structured handoff is present, proceed with Phase 0 normally.
-
----
-
 ## Phase 1: Data Loading & Cleaning
 
 1. If `$ARGUMENTS` contains a file path, use that. Otherwise, ask the user for the data file path.
@@ -233,7 +206,7 @@ If no structured handoff is present, proceed with Phase 0 normally.
    **Step 1d — Deduplication:** "Is there a respondent ID column for deduplication? I see these potential ID columns: [list]. Should I deduplicate based on one of them?"
    ⛔ **STOP — wait for confirmation before applying.**
 
-   **Step 1e — Duplicate column names:** After cleaning, check whether any column names are duplicated (common in Qualtrics matrix exports where multiple question blocks share sub-item labels). If duplicates exist: "I found [N] duplicate column names: [list]. This typically happens when two matrix questions have the same sub-item labels (e.g., Q19 satisfaction and Q20 necessity both have a '网站导航' sub-column). I recommend renaming them by appending a suffix — e.g., '网站导航_1', '网站导航_2'. Shall I apply this, or would you prefer to rename them manually?"
+   **Step 1e — Duplicate column names:** After cleaning, check whether any column names are duplicated (common in Qualtrics matrix exports where multiple question blocks share sub-item labels). If duplicates exist: "I found [N] duplicate column names: [list]. This typically happens when two matrix questions have the same sub-item labels (e.g., Q19 and Q20 both have a 'navigation' sub-column). I recommend renaming them by appending a suffix — e.g., 'navigation_1', 'navigation_2'. Shall I apply this, or would you prefer to rename them manually?"
    ⛔ **STOP — wait for confirmation, then apply:** `df = deduplicate_column_names(df, strategy='suffix')`
 
    **Step 1f — Data constraints:** "Before we analyse, are there any known limitations with this data I should be aware of? For example:
@@ -267,7 +240,7 @@ If no structured handoff is present, proceed with Phase 0 normally.
    - You may group similar columns together (e.g., all frequency Likert columns) for a single confirmation, but always show the mapping.
    ⛔ **STOP — wait for confirmation before applying each group.**
 
-4. After all encodings, show a summary of what was transformed. **For any column containing `不适用` (Not Applicable) responses, report the N/A rate:** "Column '[name]': [X]% of respondents selected 不适用 — these are excluded from statistical calculations (treated as NaN, not 0)."
+4. After all encodings, show a summary of what was transformed. **For any column containing Not Applicable responses, report the N/A rate:** "Column '[name]': [X]% of respondents selected N/A — these are excluded from statistical calculations (treated as NaN, not 0)."
 
 ### Supported variable types
 - `likert_frequency` — Never/Rarely/Quarterly/Monthly/Weekly/Daily → 0-5
@@ -323,7 +296,7 @@ If no structured handoff is present, proceed with Phase 0 normally.
    "How thorough should this analysis be?
    - **Quick read** — descriptive summary and means table only (~5 min)
    - **Standard** *(recommended)* — descriptives + ANOVA/chi-squared on key variables + charts
-   - **Deep dive** — full suite: all tests + Tukey HSD + regression + charts + named analysis patterns (satisfaction driver, MAU/DAU, growth signals, etc.)"
+   - **Deep dive** — full suite: all tests + Tukey HSD + regression + charts + named analysis patterns"
 
    ⛔ **STOP — wait for the user's choice before listing individual options.**
 
@@ -480,7 +453,7 @@ ax.set_ylabel('Mean Score')
 ax.set_title('Group Means by Variable')
 ax.legend()
 plt.tight_layout()
-path = 'your-project/output/quantitative-analysis/chart_group_means.png'
+path = 'your-project/project-{name}/output/quantitative-analysis/chart_group_means.png'
 plt.savefig(path, dpi=150)
 plt.show()
 chart_paths.append(path)
@@ -495,7 +468,7 @@ fig, ax = plt.subplots(figsize=(12, 8))
 sns.heatmap(pivot, annot=True, fmt='.2f', cmap='YlOrRd', ax=ax)
 ax.set_title('Mean Scores Heatmap')
 plt.tight_layout()
-path = 'your-project/output/quantitative-analysis/chart_heatmap.png'
+path = 'your-project/project-{name}/output/quantitative-analysis/chart_heatmap.png'
 plt.savefig(path, dpi=150)
 plt.show()
 chart_paths.append(path)
@@ -540,7 +513,7 @@ These are reusable, purpose-specific analysis patterns that go beyond generic de
 
 ### Pattern 1: Satisfaction Driver Analysis + Priority Matrix
 
-**When to use:** Surveys with an overall satisfaction item and multiple sub-dimension satisfaction items (e.g., Edge Mobile: overall satisfaction + performance, reliability, search, sync, ads blocker, privacy).
+**When to use:** Surveys with an overall satisfaction item and multiple sub-dimension satisfaction items (e.g., overall satisfaction + separate ratings for performance, reliability, usability, and specific features).
 
 **Goal:** Identify which sub-dimensions have the highest leverage on overall satisfaction, then place each in a 2×2 priority matrix to guide improvement decisions.
 
@@ -596,204 +569,12 @@ ax.set_xlabel('Mean Satisfaction Score')
 ax.set_ylabel('Regression β (impact on overall satisfaction)')
 ax.set_title('Satisfaction Driver Priority Matrix')
 plt.tight_layout()
-path = 'your-project/output/quantitative-analysis/chart_satisfaction_priority_matrix.png'
+path = 'your-project/project-{name}/output/quantitative-analysis/chart_satisfaction_priority_matrix.png'
 plt.savefig(path, dpi=150)
 chart_paths.append(path)
 ```
 
 **Output label:** "Satisfaction Driver Analysis complete. [N] sub-dimensions with significant β: [list]. Priority: Improve First → [list]; Enhance Strength → [list]."
-
----
-
-### Pattern 2: MAU/DAU Estimation from Frequency Questions
-
-**When to use:** Prioritization surveys where each item has a frequency-of-use question (Never / Occasionally / Monthly / Weekly / Daily or similar scale). Produces estimated monthly and daily active user percentages per item.
-
-**Goal:** Convert frequency response distributions into MAU% and DAU% estimates per item, then rank items and validate against usefulness scores if available.
-
-**Steps:**
-
-1. Confirm with user: "I'll estimate MAU% and DAU% for each item from the frequency question. Which columns are the frequency items? What are the response labels? (I need to know which labels count as 'monthly or above' for MAU, and 'daily' for DAU.)"
-
-2. For each frequency column (one per feature/item):
-```python
-def estimate_mau_dau(series, mau_labels, dau_labels):
-    """
-    mau_labels: list of response values that count toward MAU (e.g., ['Monthly', 'Weekly', 'Daily'])
-    dau_labels: list of response values that count toward DAU (e.g., ['Daily'])
-    Returns: mau_pct, dau_pct, mau_moe, n
-    """
-    n = series.notna().sum()
-    mau_pct = series.isin(mau_labels).sum() / n
-    dau_pct = series.isin(dau_labels).sum() / n
-    # Margin of error at 90% confidence (z=1.645)
-    mau_moe = 1.645 * (mau_pct * (1 - mau_pct) / n) ** 0.5
-    return mau_pct, dau_pct, mau_moe, n
-```
-
-3. Build results table:
-```
-MAU/DAU Estimates
-──────────────────────────────────────────────────────────────────────
-Item              | Est. MAU% | MAU MOE (±) | Est. DAU% | n
-──────────────────────────────────────────────────────────────────────
-UV Index          | 24.1%     | ±3.8%       | 8.3%      | 349
-Traffic Index     | 51.6%     | ±4.4%       | 18.9%     | 349
-Umbrella Index    | 48.7%     | ±4.4%       | 14.9%     | 349
-...
-```
-
-4. If a parallel usefulness/importance rating column exists for the same items, compute the correlation between usefulness score and MAU%:
-```python
-import scipy.stats as stats
-r, p = stats.pearsonr(usefulness_scores, mau_pcts)
-print(f"Usefulness × MAU correlation: r={r:.3f}, p={p:.3f}")
-```
-Report: "Usefulness and estimated MAU are [strongly / weakly] correlated (r=[value], p=[value]). Items with high usefulness but low MAU may face discoverability or adoption barriers."
-
-5. Rank items by MAU% descending. Optionally flag items where usefulness rank and MAU rank diverge by more than 3 positions — these are candidates for adoption intervention.
-
-**Output label:** "MAU/DAU Estimation complete. Top item by MAU: [name] ([pct]%). Usefulness × MAU correlation: r=[value]."
-
----
-
-### Pattern 3: Growth Signal Detection via Behavioral Subgroup Chi-Square
-
-**When to use:** User profile & growth surveys where behavioral subgroups (e.g., users who use the product for shopping, work, or sync) can be tested against engagement or loyalty outcomes.
-
-**Goal:** Identify which behavioral subgroups show statistically significantly higher engagement, retention, or satisfaction — these are growth lever candidates.
-
-**Steps:**
-
-1. Confirm with user: "I'll test whether specific behavioral subgroups (e.g., shopping users, work users) show higher engagement or loyalty. Which columns define the behavioral subgroups? Which columns measure engagement / loyalty / satisfaction (the outcomes to test against)?"
-
-2. For each behavioral indicator column (binary: user selected this behavior or not):
-```python
-# Create binary subgroup indicator
-df['is_shopping_user'] = df['purposes'].str.contains('Shopping', na=False).astype(int)
-
-# Chi-square test: behavioral subgroup × engagement outcome
-chi2_result = run_chi_squared(df, variable=engagement_col, group_column='is_shopping_user')
-```
-
-3. Build a summary table of all behavioral subgroup tests:
-```
-Growth Signal Detection
-──────────────────────────────────────────────────────────────────────────
-Behavioral Subgroup   | Outcome Tested   | chi² | p     | V     | Signal?
-──────────────────────────────────────────────────────────────────────────
-Shopping users        | Usage frequency  | 12.3 | 0.002 | 0.18  | ✅ Yes
-Shopping users        | Exclusive loyalty| 8.7  | 0.013 | 0.15  | ⚠️ Yes
-Work users            | Usage frequency  | 4.1  | 0.043 | 0.10  | ⚠️ Yes
-Sync-driven users     | Usage frequency  | 6.8  | 0.009 | 0.13  | ✅ Yes
-Personal interest users| Satisfaction    | 1.2  | 0.274 | 0.06  | — No
-──────────────────────────────────────────────────────────────────────────
-```
-
-4. For any significant result, also show the observed frequency breakdown (e.g., daily/weekly/monthly usage split between subgroup vs non-subgroup) to confirm the direction of the effect.
-
-5. Apply the finding strength labels from Phase 5. Flag as "growth signal" any subgroup where at least two outcome tests are significant at p < 0.05.
-
-**Output label:** "Growth signal detection complete. [N] subgroups flagged as growth signals: [list with strength labels]."
-
----
-
-### Pattern 4: Format Confidence Gap Analysis
-
-**When to use:** Generative surveys where the same item set appears in two parallel multi-select questions: (A) "What content is important to you?" and (B) "What content works well in [format]?" The gap between selection rates reveals where the format falls short.
-
-**Goal:** For each item, compute the gap between importance% and format-suitability%. Large positive gaps identify design challenges — content users want that the format cannot yet deliver.
-
-**Steps:**
-
-1. Confirm with user: "I'll compute the format confidence gap. Which column (or set of one-hot encoded columns) represents importance? Which represents format suitability? They should cover the same items."
-
-2. For each item, compute selection rates in both questions:
-```python
-items = [col for col in df.columns if col.startswith('important_')]
-format_cols = [col.replace('important_', 'format_') for col in items]
-
-gap_df = pd.DataFrame({
-    'Item': [col.replace('important_', '') for col in items],
-    'Important%': [df[col].mean() * 100 for col in items],
-    'Format-Suitable%': [df[fcol].mean() * 100 for fcol in format_cols],
-})
-gap_df['Gap'] = gap_df['Important%'] - gap_df['Format-Suitable%']
-gap_df = gap_df.sort_values('Gap', ascending=False)
-```
-
-3. Present the table sorted by gap descending:
-```
-Format Confidence Gap
-──────────────────────────────────────────────────────────────────
-Item                        | Important% | Format-Suitable% | Gap
-──────────────────────────────────────────────────────────────────
-Project updates             | 68%        | 44%              | +24% ⚠️ Design challenge
-Summary/overview            | 55%        | 48%              | +7%
-Key decisions/announcements | 72%        | 70%              | +2%
-Action items/tasks          | 65%        | 64%              | +1%
-Major discussion points     | 58%        | 58%              | 0%
-──────────────────────────────────────────────────────────────────
-```
-
-4. Flag items with gap > 15 percentage points as design challenges. Recommend: either solve within the format (richer treatment) or link to supplemental artifacts for on-demand depth.
-
-5. Optionally run a paired t-test on each item to test whether the difference between importance% and format-suitable% is statistically significant:
-```python
-for item, imp_col, fmt_col in zip(items, important_cols, format_cols):
-    ttest_result = run_ttest_paired(df, variable_1=imp_col, variable_2=fmt_col)
-```
-
-**Output label:** "Format Confidence Gap complete. [N] items with gap > 15pp: [list]. These are the primary format design challenges."
-
----
-
-### Pattern 5: Dual-Perspective Alignment Analysis
-
-**When to use:** Generative surveys where the same multi-select battery is asked from two user roles — e.g., participant perspective and organizer perspective. Identifies where both roles agree (highest-confidence product bets) and where they diverge (design tensions).
-
-**Goal:** For each item, compare selection rates between the two role groups. Items with high selection by both are confirmed needs; large divergences reveal where one role's goal conflicts with the other's.
-
-**Steps:**
-
-1. Confirm with user: "I'll compare the two perspectives. Which column identifies the role (participant vs organizer)? Or are the two perspectives separate question blocks covering the same items?"
-
-2. If perspectives are separate columns (e.g., `participant_goal_*` vs `organizer_goal_*`), compute selection rates per item for each block. If they are the same question filtered by a role column, split the DataFrame by role and compute rates per group.
-
-3. Build the alignment table:
-```python
-alignment = pd.DataFrame({
-    'Item': item_names,
-    'Participant%': participant_rates,
-    'Organizer%': organizer_rates,
-})
-alignment['Divergence'] = (alignment['Participant%'] - alignment['Organizer%']).abs()
-alignment['Alignment'] = alignment[['Participant%', 'Organizer%']].min(axis=1)
-alignment = alignment.sort_values('Alignment', ascending=False)
-```
-
-4. Present the table and classify each item:
-```
-Dual-Perspective Alignment
-──────────────────────────────────────────────────────────────────────────
-Item                        | Participant% | Organizer% | Alignment | Tag
-──────────────────────────────────────────────────────────────────────────
-Key decisions/announcements | 72%          | 78%        | 72%       | ✅ Confirmed
-Action items/tasks          | 65%          | 70%        | 65%       | ✅ Confirmed
-Major discussion points     | 58%          | 62%        | 58%       | ✅ Confirmed
-Project updates             | 68%          | 45%        | 45%       | ⚠️ Divergent
-Summary/overview            | 55%          | 40%        | 40%       | ⚠️ Divergent
-──────────────────────────────────────────────────────────────────────────
-```
-
-**Classification rules:**
-- **✅ Confirmed** — both perspectives ≥ 50% AND divergence ≤ 15pp → build this first
-- **⚠️ Divergent** — divergence > 20pp → explicit product decision needed about which role to optimize for
-- **🔵 Partial** — one perspective ≥ 50%, other < 50% but divergence ≤ 20pp → worth building but lower confidence
-
-5. If the same question was asked to both roles in a single survey (role is a column), run chi-square per item to test whether selection rate differs significantly across roles.
-
-**Output label:** "Dual-Perspective Alignment complete. [N] confirmed items (both perspectives agree): [list]. [N] divergent items needing product decisions: [list]."
 
 ---
 
@@ -804,12 +585,12 @@ Summary/overview            | 55%          | 40%        | 40%       | ⚠️ Div
    **Part A — Finding verdicts table** (one row per tested variable):
 
    ```
-   Variable           | p     | Effect | Strength    | Verdict
+   Variable              | p     | Effect | Strength    | Verdict
    ─────────────────────────────────────────────────────────────────────
-   整体满意度          | 0.008 | η²=.14 | ✅ Strong   | Robust — act on this
-   功能满意度          | 0.032 | η²=.07 | ⚠️ Moderate | Worth investigating
-   性能满意度          | 0.210 | η²=.02 | — No diff   | No detectable difference
-   工具偏好 (chi-sq)   | 0.041 | V=.28  | ⚠️ Moderate | Worth investigating
+   Overall satisfaction  | 0.008 | η²=.14 | ✅ Strong   | Robust — act on this
+   Feature satisfaction  | 0.032 | η²=.07 | ⚠️ Moderate | Worth investigating
+   Performance rating    | 0.210 | η²=.02 | — No diff   | No detectable difference
+   Tool preference (chi-sq) | 0.041 | V=.28 | ⚠️ Moderate | Worth investigating
    ```
 
    Use the finding strength labels from Phase 5. If data constraints were noted in Step 1f, flag where they affect interpretation (e.g., "⚠️ Non-representative sample — treat with caution").
@@ -880,7 +661,7 @@ Summary/overview            | 55%          | 40%        | 40%       | ⚠️ Div
            'T-Tests': ttest_list,           # list of result dicts
            'Regression': regression_coef_df,
        },
-       filepath='your-project/output/quantitative-analysis/quantitative_analysis_results.xlsx',
+       filepath='your-project/project-{name}/output/quantitative-analysis/quantitative_analysis_results.xlsx',
        charts=chart_paths,          # list of PNG paths from Phase 5b
        raw_data=topic_df,           # the filtered DataFrame for this topic
                                     # (or {topic_name: df} for multi-topic exports)
@@ -949,7 +730,7 @@ For option F: produce the qualitative handoff block above and pass to `interview
 - **不适用 (N/A) responses:** These are encoded as NaN, not 0. They are excluded from means, ANOVA, t-tests, and regression. Report N/A rates in the Phase 2 summary so the user knows how many respondents the question applied to.
 - When displaying tables, use pandas DataFrames for clean formatting.
 - If any library is missing, help the user install it: `pip install pandas numpy scipy matplotlib seaborn scikit-learn kmodes statsmodels pingouin openpyxl deep-translator`
-- Save all results files to `your-project/output/quantitative-analysis/`. Create the folder if it doesn't exist.
+- Save all results files to `your-project/project-{name}/output/quantitative-analysis/`. Create the folder if it doesn't exist.
 - The baseline group (group 99, if present) represents the overall population for comparison.
 - For **clustering-based group comparisons** (e.g., comparing clusters on statistical tests after running clustering), the user can bring a labeled dataset from the clustering-analysis skill into this workflow — the group column would be the cluster assignment column.
 

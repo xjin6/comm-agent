@@ -144,12 +144,12 @@ Then use `AskUserQuestion` for output format:
 
 Output data should be saved to the project output folder. Use this path:
 ```
-your-project/output/TOPIC_NAME/
+your-project/project-{name}/output/TOPIC_NAME/
 ```
 
 For monthly batches, add the month:
 ```
-your-project/output/TOPIC_NAME/2025-01/
+your-project/project-{name}/output/TOPIC_NAME/2025-01/
 ```
 
 Assemble and execute the command (run from the agent root directory):
@@ -160,7 +160,7 @@ python general-skill/skill-weibo-topic-scraper/scripts/main.py \
   --cookie "USER_COOKIE" \
   --start-date YYYY-MM-DD \
   --end-date YYYY-MM-DD \
-  --output-dir your-project/output/TOPIC_NAME \
+  --output-dir your-project/project-{name}/output/TOPIC_NAME \
   --format both \
   --delay-min 3 --delay-max 7
 ```

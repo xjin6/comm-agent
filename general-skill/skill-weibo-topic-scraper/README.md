@@ -1,11 +1,13 @@
 # Weibo Topic Scraper
 
-A Python scraper for collecting Sina Weibo (新浪微博) topic data for academic research. Scrapes posts, comments, and user profiles under any hashtag topic.
+> **v0.1.0** · Updated 2026-03-26 · `scraper`
+
+A Python scraper for collecting Sina Weibo topic data for academic research. Scrapes posts, comments, and user profiles under any hashtag topic.
 
 ## Features
 
 - **Posts**: ID, content, timestamp, reposts/comments/likes, images, video, topic tags, source device
-- **Comments**: Including nested replies (楼中楼), with reply-to relationships
+- **Comments**: Including nested replies, with reply-to relationships
 - **User Profiles**: Nickname, gender, location, bio, followers, verification status
 - **Smart Pagination**: Auto-detects page count, splits by day/hour to bypass the 50-page search limit
 - **Incremental Saving**: Data saved periodically so nothing is lost if interrupted
@@ -93,8 +95,8 @@ Then just tell Claude something like "help me scrape a Weibo topic" and it will 
 
 ## Author
 
-**Xin Jin** — xjin6@outlook.com
+**Xin Jin** (@xjin6) · xjin6@outlook.com
 
 ## License
 
-MIT
+CC BY-NC-ND 4.0

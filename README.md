@@ -8,15 +8,22 @@ Built on [Claude Code](https://claude.ai/claude-code), this agent gives research
 
 ```
 comm-agent/
-├── general-knowledge/   # Shared theory & methods knowledge base
-├── general-skill/       # Reusable research skills (scraping, analysis, etc.)
-├── your-project/             # Your personal workspace (not shared)
-│   ├── context.md       # Describe your study here
-│   ├── data/            # Your raw data
-│   ├── knowledge/       # Your literature & notes
-│   ├── literature/      # Drop PDFs/BIB/RIS here for APA reference generation
-│   └── output/          # Agent-generated results
-└── CLAUDE.md            # Agent instructions
+├── CLAUDE.md                       # Agent instructions
+├── general-knowledge/              # Shared theory & methods knowledge base
+├── general-skill/                  # Reusable research skills (scraping, analysis, etc.)
+│   ├── skill-weibo-topic-scraper/
+│   ├── skill-xiaohongshu-search-scraper/
+│   ├── skill-douyin-trending-topic-scraper/
+│   ├── skill-structural-equation-modeling/
+│   ├── skill-quantitative-analysis/
+│   └── skill-apa-reference-list/
+└── your-project/                   # Your personal workspace — intentionally empty
+    └── project-{name}/             # Created by the agent when you start a project
+        ├── context.md              # Describe your study here
+        ├── data/                   # Your raw data
+        ├── knowledge/              # Your literature & notes
+        ├── literature/             # Drop PDFs/BIB/RIS here for APA reference generation
+        └── output/                 # Agent-generated results
 ```
 
 ## General Knowledge
@@ -34,18 +41,21 @@ Standalone, reusable skills for specific research tasks.
 | Skill | Version | Description |
 |-------|---------|-------------|
 | [skill-weibo-topic-scraper](./general-skill/skill-weibo-topic-scraper/) | v0.1.0 | Scrape Sina Weibo topic posts, comments, and user profiles |
-| [skill-xiaohongshu-scraper](./general-skill/skill-xiaohongshu-scraper/) | v0.1.0 | Scrape Xiaohongshu (小红书) notes, comments, and user profiles by keyword |
-| [skill-structural-equation-modeling](./general-skill/skill-structural-equation-modeling/) | v0.4.0 | Full SEM pipeline: EFA → CFA → Mediation (PROCESS templates) → Moderation. Features: (1) startup guidance — tells user what files to prepare before any analysis; (2) auto-identifies control variables from `knowledge/` and column names; (3) optional per-scale CFA check before full measurement model; (4) item diagnostic — flags λ < .50 items with estimated post-deletion AVE; (5) MI optimization loop via `calc_sigma()` residuals (same-scale only, ΔCFI ≥ .001, max 10); (6) PROCESS-style mediation model templates (Models 4/6/7/8/14/58); (7) parametric bootstrap indirect effects (B = 5,000); (8) two-step hierarchical OLS moderation with simple slopes + optional LMS robustness check; (9) construct labeling system (CONSTRUCT_LABELS / ABBREV_LABELS / ABBREV_NOTE) applied across all outputs; (10) generates Tables 1–6, Figures 1–2, and bilingual write-up Word documents (EN + CN) |
+| [skill-xiaohongshu-search-scraper](./general-skill/skill-xiaohongshu-search-scraper/) | v0.1.0 | Scrape Xiaohongshu notes, comments, and user profiles by keyword |
+| [skill-douyin-trending-topic-scraper](./general-skill/skill-douyin-trending-topic-scraper/) | v0.1.0 | Scrape Douyin trending topics list and videos under specific trending topics |
+| [skill-structural-equation-modeling](./general-skill/skill-structural-equation-modeling/) | v0.2.0 | EFA / CFA / Full SEM / Mediation / Moderation with MI optimization, item diagnostics, measurement quality tables, and APA publication tables |
 | [skill-apa-reference-list](./general-skill/skill-apa-reference-list/) | v0.1.0 | Read literature files and generate an APA 7th edition reference list |
-| [skill-quantitative-analysis](./general-skill/skill-quantitative-analysis/) | v1.2 | End-to-end inferential statistics: ANOVA, t-tests, chi-squared, regression, and descriptive analysis on survey data |
+| [skill-quantitative-analysis](./general-skill/skill-quantitative-analysis/) | v0.1.0 | End-to-end inferential statistics: ANOVA, t-tests, chi-squared, regression, and descriptive analysis on survey data |
 
 ## Getting Started
 
-1. Fill in `your-project/context.md` with your study overview, research questions, and variables
-2. Drop your data into `your-project/data/`
-3. Put your literature and notes in `your-project/knowledge/`
-4. Drop literature files (PDF, DOCX, BIB, RIS, TXT) into `your-project/literature/` for APA reference generation
-5. Ask the agent to help — it will read your context automatically
+`your-project/` is intentionally empty — create your own project to get started:
+
+1. Tell the agent: *"Create a project called [name]"* — it will create `your-project/project-{name}/` with the four standard folders (`data/`, `knowledge/`, `literature/`, `output/`) and an empty `context.md`
+2. Describe your study and the agent will fill in `context.md` for you
+3. Drop your data into `your-project/project-{name}/data/`
+4. Drop literature files (PDF, DOCX, BIB, RIS, TXT) into `your-project/project-{name}/literature/`
+5. At the start of each session, tell the agent which project you're working on
 
 ## Vision
 
@@ -53,10 +63,8 @@ A modular end-to-end research agent that helps communication researchers go from
 
 ## Author
 
-**Xin Jin** — xjin6@outlook.com
-
-**Sha Sarah QIU** — sarahq2025@gmail.com
+**Xin Jin** (@xjin6) · xjin6@outlook.com
 
 ## License
 
-MIT
+CC BY-NC-ND 4.0

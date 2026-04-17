@@ -1,5 +1,7 @@
 # Quantitative Analysis
 
+> **v0.1.0** · Updated 2026-03-31 · `analysis`
+
 End-to-end interactive inferential statistics for survey and tabular data. Guides through data cleaning, variable encoding, hypothesis tests, regression modelling, and Excel export — with user confirmation at every decision point.
 
 ## Features
@@ -12,18 +14,18 @@ End-to-end interactive inferential statistics for survey and tabular data. Guide
 
 ## Output
 
-All results saved to `your-project/output/quantitative-analysis/`:
+All results saved to `your-project/project-{name}/output/quantitative-analysis/`:
 
 | File | Description |
 |------|-------------|
 | `quantitative_analysis_results.xlsx` | Multi-sheet workbook with all results and embedded charts |
-| `results.docx` | APA-format Word document — Times New Roman 12pt, 三线表 tables |
+| `results.docx` | APA-format Word document — Times New Roman 12pt, three-line tables |
 | `chart_group_means.png` | Group comparison bar chart |
 | `chart_heatmap.png` | Correlation/response heatmap |
 
 ## Quick Start
 
-1. Place your data in `your-project/data/` (CSV or Excel)
+1. Place your data in `your-project/project-{name}/data/` (CSV or Excel)
 2. Tell the agent: *"Run stats on my survey data"* or *"Compare groups on satisfaction"*
 
 The agent will guide you through each phase interactively — it always presents recommendations and waits for your approval before running anything.
@@ -46,12 +48,12 @@ The agent will guide you through each phase interactively — it always presents
 | Script | Description |
 |--------|-------------|
 | `scripts/quantitative_core.py` | Data loading, encoding, and all statistical analysis functions |
-| `scripts/word_export.py` | APA 三线表 Word export — Times New Roman 12pt, three-line borders |
+| `scripts/word_export.py` | APA three-line table Word export — Times New Roman 12pt, three-line borders |
 
 ## Author
 
-**Xin Jin** — xjin6@outlook.com
+**Xin Jin** (@xjin6) · xjin6@outlook.com
 
 ## License
 
-MIT
+CC BY-NC-ND 4.0

@@ -141,7 +141,7 @@ def export_to_word(
     ----------
     results  : {table_title: pd.DataFrame}
                Each DataFrame becomes one APA table.
-    filepath : Output .docx path (e.g. 'your-project/output/quantitative-analysis/results.docx')
+    filepath : Output .docx path (e.g. 'your-project/project-{name}/output/quantitative-analysis/results.docx')
     title    : Document-level title shown at the top.
     notes    : {table_title: note_string}  — optional APA table note below each table.
 
@@ -153,7 +153,7 @@ def export_to_word(
             'Table 2. ANOVA Results':          anova_df,
             'Table 3. Regression Coefficients': reg_df,
         },
-        filepath='your-project/output/quantitative-analysis/results.docx',
+        filepath='your-project/project-{name}/output/quantitative-analysis/results.docx',
         notes={
             'Table 3. Regression Coefficients': 'Note. * p < .05. ** p < .01. *** p < .001.'
         }
