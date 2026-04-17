@@ -360,6 +360,16 @@ Report:
 Save community membership to:
 `your-project/project-{name}/output/network/community_membership.csv`
 
+After reporting community results, ask:
+
+> "Louvain detected **{n_communities}** communities (numbered 0–{n_communities-1}). Would you like to give them meaningful labels for use in the tables and figures?
+>
+> For example: Community 0 → "Core Discussion Group", Community 1 → "Peripheral Observers"
+>
+> If not, numeric IDs will be used in all outputs."
+
+If the user provides labels, store them as a mapping `{community_id: label}` and apply to all subsequent outputs (table headers, node colour legends, figure captions).
+
 ---
 
 ## Step 5: Network Visualisation
@@ -442,6 +452,35 @@ def cascade_analysis(G, seed_nodes):
 Report structural virality (Goel et al., 2016) for each seed node.
 
 Save to: `your-project/project-{name}/output/network/sna/diffusion_analysis.csv`
+
+---
+
+## Step 6b: Network Comparison (Optional — ask before generating output)
+
+Before generating any output files, always ask:
+
+> "Before I generate the tables and figures, would you like to compare this network against a second network?
+>
+> There are two ways to do this:
+>
+> **Option A — Split by a column in your existing data** (single dataset)
+> For example:
+> - Time period: split `publish_time` into before vs. after a specific date
+> - User region: split by `source_device` or location in `profiles.csv`
+> - Post type: video posts vs. image/text posts
+> → Tell me which column to split on and the two group values.
+>
+> **Option B — Two separate datasets**
+> For example: Weibo data vs. Xiaohongshu data, or two different topics
+> → Tell me where the second data file is.
+>
+> If you don't need network comparison, I'll proceed directly to generating the output files."
+
+- If **Option A**: inspect the available columns in the data, show the user the candidate grouping columns and their value distributions, then ask which column and cutpoint/values to use. Build two sub-networks from the split, then run the comparison.
+- If **Option B**: load the second dataset, build its network using the same parameters (directed/undirected, weighted/unweighted) as the first, then run the comparison.
+- If **no**: proceed directly to Step 7.
+
+Do NOT auto-detect a grouping variable or second network. Only proceed with comparison if the user explicitly confirms and specifies the grouping.
 
 ---
 
