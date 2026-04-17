@@ -39,7 +39,7 @@ All files saved to `projects/{name}/output/`:
 | `table_did_robustness.docx` | Placebo and robustness checks |
 | `table_causal_psm.docx` | PSM outcome regression table |
 | `table_causal_psw.docx` | PSW outcome regression table |
-| `table_iv_country.docx` | IV regression table (2SLS) |
+| `table_iv.docx` | IV regression table (2SLS) |
 | `table_rdd_main.docx` | RDD estimates table |
 | `fig_did_trends.png` | Treatment vs control raw outcome trends |
 | `fig_did_eventstudy.png` | Event-study plot with 95% CI |
