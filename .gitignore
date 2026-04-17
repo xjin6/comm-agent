@@ -1,0 +1,25 @@
+__pycache__/
+*.pyc
+.DS_Store
+*.log
+
+# Project folders — keep structure, ignore contents
+your-project/data/*
+!your-project/data/.gitkeep
+your-project/knowledge/*
+!your-project/knowledge/.gitkeep
+your-project/output/*
+!your-project/output/.gitkeep
+your-project/literature/*
+!your-project/literature/.gitkeep
+
+# projects/ workspace — ignore all project data/output/scripts/knowledge
+projects/*/data/*
+projects/*/output/*
+projects/*/knowledge/*
+projects/*/literature/*
+projects/*/scripts/*
+!projects/*/data/.gitkeep
+!projects/*/output/.gitkeep
+!projects/*/knowledge/.gitkeep
+!projects/*/literature/.gitkeep

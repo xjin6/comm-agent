@@ -1,0 +1,30 @@
+# skill-weibo-topic-scraper / skill-xiaohongshu-search-scraper / skill-douyin-trending-topic-scraper
+requests>=2.28.0
+beautifulsoup4>=4.11.0
+lxml>=4.8.0
+playwright>=1.40.0
+
+# skill-apa-reference-list
+pymupdf>=1.23.0
+python-docx>=0.8.11
+bibtexparser>=1.4.0
+
+# skill-structural-equation-modeling
+semopy>=2.3.0
+factor-analyzer>=0.4.0
+pandas>=1.5.0
+numpy>=1.23.0
+matplotlib>=3.6.0
+scipy>=1.9.0
+statsmodels>=0.13.0
+openpyxl>=3.0.0
+
+# skill-quantitative-analysis
+scikit-learn>=1.1.0
+kmodes>=0.12.0
+pingouin>=0.5.0
+
+# skill-causal-inference
+causalml>=0.15.0
+econml>=0.15.0
+linearmodels>=6.0
