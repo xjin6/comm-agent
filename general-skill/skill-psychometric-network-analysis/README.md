@@ -52,19 +52,33 @@ All results saved under `your-project/project-{name}/output/network/`:
 | `mlvar_contemporaneous_matrix.csv` | Contemporaneous coefficient matrix |
 | `panelvar_coefficients.csv` | GMM coefficient matrix |
 
-**APA Tables and Write-up**
+**APA Tables** (saved to `tables/` subfolder)
 
 | File | Description |
 |------|-------------|
-| `Table1_Descriptives.docx` | Descriptive statistics and correlations |
-| `Table2_EdgeWeights.docx` | EBICglasso edge weight matrix |
-| `Table3_Centrality.docx` | Centrality indices with CS-coefficient note |
-| `Table4_Stability.docx` | Bootstrap stability results |
-| `Table5_NCT.docx` | Network comparison test results (if applicable) |
-| `Table6_CLPNA.docx` | Cross-lagged temporal paths (if applicable) |
-| `NetworkAnalysis_EN.docx` | Full English results write-up (APA 7th) |
-| `NetworkAnalysis_CN.docx` | Full Chinese results write-up |
-| `network_results.xlsx` | All results in a multi-sheet Excel workbook |
+| `Table1_EdgeWeights.docx` | Non-zero edge weights sorted by absolute weight |
+| `Table2_Centrality.docx` | Centrality indices (Strength, Betweenness, Closeness, EI) |
+| `Table3_ExpectedInfluence.docx` | Expected Influence 1-step and 2-step raw values |
+| `Table4_BridgeCentrality.docx` | Bridge centrality (if construct groups defined) |
+| `Table5_Stability.docx` | CS-coefficients with stability interpretation |
+| `Table6_NCT.docx` | Network comparison test results (if NCT was run) |
+
+**Figures** (saved to `figures/` subfolder)
+
+| File | Description |
+|------|-------------|
+| `Figure1_NetworkPlot.png` | Spring-layout network plot (300 dpi) |
+| `Figure2_CentralityPlot.png` | Centrality index bar chart |
+| `Figure3_StabilityEdge.png` | Edge-weight bootstrap plot |
+| `Figure4_StabilityCase.png` | Case-dropping stability plot |
+| `Figure5_NCT_Group1.png` | Network plot — Group 1 (if NCT was run) |
+| `Figure6_NCT_Group2.png` | Network plot — Group 2 (if NCT was run) |
+
+**Combined Report**
+
+| File | Description |
+|------|-------------|
+| `network_analysis_report.docx` | Full APA-formatted report combining all tables and figures |
 
 ## Quick Start
 

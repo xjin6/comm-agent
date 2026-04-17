@@ -16,7 +16,10 @@ from docx.opc.constants import RELATIONSHIP_TYPE as RT
 # ── paths ─────────────────────────────────────────────────────────────────────
 
 BASE    = "/Users/suosuo/Desktop/comm-agent/your-project/output/network"
-NCT_DIR = os.path.join(BASE, "nct_gender")
+# NCT output lives in a subdirectory named after the group variable used
+# (e.g. "nct_gender" when comparing by gender). Change this to match your run.
+NCT_SUBDIR = "nct_gender"
+NCT_DIR = os.path.join(BASE, NCT_SUBDIR)
 TDIR    = os.path.join(BASE, "tables")
 FDIR    = os.path.join(BASE, "figures")
 os.makedirs(TDIR, exist_ok=True)
@@ -503,8 +506,8 @@ FIGURES = [
     ("centrality_plot.png",               "Figure2_CentralityPlot.png"),
     ("stability_edge_plot.png",           "Figure3_StabilityEdge.png"),
     ("stability_case_plot.png",           "Figure4_StabilityCase.png"),
-    ("nct_gender/nct_network_1.png",      "Figure5_NCT_Male.png"),
-    ("nct_gender/nct_network_2.png",      "Figure6_NCT_Female.png"),
+    (f"{NCT_SUBDIR}/nct_network_1.png",   "Figure5_NCT_Group1.png"),
+    (f"{NCT_SUBDIR}/nct_network_2.png",  "Figure6_NCT_Group2.png"),
 ]
 
 def copy_figures():
