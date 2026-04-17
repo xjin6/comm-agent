@@ -28,7 +28,7 @@ Available skills:
 
 **For a specific task** — read the `SKILL.md` inside the relevant skill folder and follow its instructions.
 
-**For your own project** — see the Project Convention section below. Each project lives in its own folder under `projects/`.
+**For your own project** — see the Project Convention section below. Each project lives in its own folder under `your-project/`.
 
 ## Project Convention
 
@@ -37,7 +37,7 @@ When the user says "create a project" or similar:
 1. If no name was given, ask: "What would you like to name this project? (e.g. `tiktok`, `weibo-2025`)"
 2. Once you have the name, create the following structure:
 ```
-projects/{name}/
+your-project/project-{name}/
 ├── context.md      ← empty, to be filled through conversation
 ├── data/
 ├── knowledge/
@@ -47,16 +47,16 @@ projects/{name}/
 3. Confirm: "Project `{name}` created. Tell me about your study and I'll fill in `context.md` for you."
 
 ### Switching projects
-At the start of a conversation, if the user mentions a project name (e.g. "I'm working on tiktok"), identify the corresponding folder `projects/{name}/` and read its `context.md` before doing anything else.
+At the start of a conversation, if the user mentions a project name (e.g. "I'm working on tiktok"), identify the corresponding folder `your-project/project-{name}/` and read its `context.md` before doing anything else.
 
 If no project is specified:
-- If `projects/` is empty, say: "It looks like you don't have a project yet. What would you like to call it? (e.g. `tiktok`, `weibo-2025`)"
+- If `your-project/` is empty, say: "It looks like you don't have a project yet. What would you like to call it? (e.g. `tiktok`, `weibo-2025`)"
 - If multiple project folders exist, ask: "Which project are you working on? I found: [list]."
 
 ### Context
-Always read `projects/{name}/context.md` at the start of any analysis task. If it is empty or incomplete, ask the user about their study — research question, data, variables, hypotheses — and write their answers into `context.md` for them. Do not make them edit it manually.
+Always read `your-project/project-{name}/context.md` at the start of any analysis task. If it is empty or incomplete, ask the user about their study — research question, data, variables, hypotheses — and write their answers into `context.md` for them. Do not make them edit it manually.
 
-All skill output paths should use `projects/{name}/output/` as the base.
+All skill output paths should use `your-project/project-{name}/output/` as the base.
 
 ## Git Convention
 
