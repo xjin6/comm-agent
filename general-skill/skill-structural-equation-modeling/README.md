@@ -15,42 +15,71 @@ A step-by-step SEM assistant for communication researchers. Covers EFA, CFA, ful
 
 ## Output
 
-All results saved to `your-project/project-{name}/output/sem/`:
+All results saved under `your-project/project-{name}/output/sem/`:
+
+**EFA** (`output/sem/efa/`)
 
 | File | Description |
 |------|-------------|
-| `sem_structural.png` | Clean publication-ready structural model (constructs only) |
-| `sem_path_diagram.png` | Full AMOS-style diagram with items, error terms, β, SE |
-| `sem_interactive.html` | Interactive viewer — drag nodes, toggle modes, export PNG |
-| `sem_structural_paths.xlsx` | APA-formatted structural path table |
-| `sem_fit_indices.csv` | Model fit summary (χ², CFI, TLI, RMSEA) |
+| `efa_loadings.csv` / `efa_loadings_table.xlsx` | Full factor loading matrix (APA-formatted) |
+| `scree_plot.png` | Scree plot for each construct analyzed |
+
+**CFA** (`output/sem/cfa/`)
+
+| File | Description |
+|------|-------------|
+| `cfa_fit_indices.csv` | χ², df, CFI, TLI, RMSEA |
+| `cfa_loadings.xlsx` | Standardized factor loadings (β, SE, p) |
+| `cfa_path_diagram.png` / `.html` | Path diagram — static and interactive |
+
+**Full SEM / Mediation / Moderation** (`output/sem/<model_name>/`)
+
+| File | Description |
+|------|-------------|
+| `indirect_bootstrap.csv` | Raw bootstrap results for indirect effects |
+| `Figure1_ConceptualModel.png` | Conceptual path diagram (300 dpi) |
+| `Figure2_InteractionPlot.png` | Simple slopes interaction plot (300 dpi) |
+| `Table1_Demographics.docx` | Sample demographics (APA three-line) |
+| `Table2_Reliability.docx` | Descriptive statistics, reliability, convergent validity, latent correlations |
+| `Table3_CompetingModels.docx` | Competing measurement models (discriminant validity) |
+| `Table4_StructuralPaths.docx` | Structural model path coefficients |
+| `Table5_IndirectEffects.docx` | Bootstrapped indirect effects (B = 5,000) |
+| `Table6_Moderation.docx` | Hierarchical OLS regression + simple slopes |
+| `DataAnalysis_EN.docx` | Full English results write-up (APA 7th) |
+| `DataAnalysis_CN.docx` | Full Chinese results write-up |
 
 ## Quick Start
 
-```bash
-# Install dependencies (from agent root)
-pip install -r requirements.txt
+1. Place your data in `your-project/project-{name}/data/` (CSV or Excel)
+2. Place questionnaire/scale docs in `your-project/project-{name}/knowledge/`
+3. Describe your study in `your-project/project-{name}/context.md` (or let the agent fill it in)
+4. Install dependencies: `pip install -r requirements.txt`
+5. Tell the agent: *"Run SEM on my survey data"* or *"I need to do CFA and mediation analysis"*
 
-# Run SEM
-python general-skill/skill-structural-equation-modeling/scripts/sem_analysis.py \
-  --file "your-project/project-{name}/data/survey.xlsx" \
-  --model-type sem \
-  --model "
-Factor1 =~ item1 + item2 + item3
-Factor2 =~ item4 + item5 + item6
-Factor2 ~ Factor1
-" \
-  --output-dir "your-project/project-{name}/output/sem/my_model"
-```
+The agent guides you interactively through each phase — it always presents recommendations and waits for your approval before running anything.
 
-## Scripts
+## Workflow Phases
+
+| Phase | What happens |
+|-------|-------------|
+| 0 — Startup | File check, load context and knowledge, identify control variables |
+| 1 — Load | Load data, review columns, sample size, missing data |
+| 2 — Entry Point | Choose: EFA / CFA / Mediation / Moderation |
+| EFA | Parallel analysis, scree plot, factor loadings, Cronbach's α |
+| CFA | Full measurement model, fit indices, MI optimization loop, AVE/CR |
+| Mediation | PROCESS-style model templates, bootstrap indirect effects (B = 5,000) |
+| Moderation | Two-step hierarchical OLS, simple slopes, optional LMS robustness check |
+| 4 — Labeling | Set full names and abbreviations for constructs |
+| 5 — Output | Select tables, figures, and write-up documents to generate |
+
+## Core Scripts
 
 | Script | Description |
 |--------|-------------|
-| `scripts/load_data.py` | Load CSV/Excel, print descriptives and missing data |
-| `scripts/efa_analysis.py` | Run EFA with parallel analysis and scree plot |
-| `scripts/sem_analysis.py` | CFA, full SEM, mediation, moderation |
-| `scripts/interactive_diagram.py` | Generate interactive Cytoscape.js HTML diagram |
+| `scripts/load_data.py` | Load CSV/Excel, print descriptives and missing data summary |
+| `scripts/efa_analysis.py` | EFA with parallel analysis, scree plot, and Cronbach's α |
+| `scripts/sem_analysis.py` | CFA (with MI optimization), full SEM, mediation (bootstrap), moderation (hierarchical OLS) |
+| `scripts/interactive_diagram.py` | Generate interactive Cytoscape.js HTML path diagram |
 
 ## Interactive Diagram
 
