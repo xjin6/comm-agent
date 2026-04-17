@@ -3,6 +3,9 @@ __pycache__/
 .DS_Store
 *.log
 
+# Claude Code project-level config — install skills globally in ~/.claude/skills/ instead
+.claude/
+
 # Project folders — keep structure, ignore contents
 your-project/*/data/*
 !your-project/*/data/.gitkeep
