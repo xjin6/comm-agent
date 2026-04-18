@@ -17,6 +17,7 @@ Available skills:
 - `skill-weibo-topic-scraper` — Scrape posts, comments, and user profiles from Sina Weibo topics
 - `skill-xiaohongshu-search-scraper` — Scrape notes, comments, and user profiles from Xiaohongshu (小红书) by keyword
 - `skill-douyin-trending-topic-scraper` — Scrape Douyin (抖音) trending topics list and videos under specific trending topics
+- `skill-twitter-search-scraper` — Scrape Twitter / X.com tweets, profiles, and media by keywords and dates
 - `skill-structural-equation-modeling` — Specify, estimate, and interpret SEM models including CFA and path analysis
 - `skill-apa-reference-list` — Read literature files and generate an APA 7th edition reference list
 - `skill-quantitative-analysis` — End-to-end inferential statistics: ANOVA, t-tests, chi-squared, regression (linear/logistic/ordinal), and descriptive analysis on survey data

@@ -1,5 +1,12 @@
 # Changelog
 
+## [agent] - 2026-04-18
+
+### Added
+- `skill-twitter-search-scraper` v0.1.0 — scrape Twitter / X.com tweets, profiles, and media by keywords and dates with cookie-based auth
+
+---
+
 ## [agent] - 2026-04-12 (2)
 
 ### Added
