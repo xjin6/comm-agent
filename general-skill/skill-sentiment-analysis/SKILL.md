@@ -7,7 +7,7 @@ description: Run LLM-based sentiment analysis on a dataset (CSV, XLSX, TXT). It 
 
 This skill guides the user through conducting rigorous, item-by-item sentiment analysis on text datasets using a large language model (LLM), and produces an aggregated statistical report suitable for research.
 
-## Workflow
+## 
 
 When the user triggers this skill, follow these steps strictly:
 
