@@ -109,7 +109,7 @@ class TwitterKeywordSearchSpider:
         self.headers["x-client-transaction-id"] = x_id
         while True:
             if not self.cookies_list:
-                input("没有cookie可以用了，请更新cookie：")
+                input("No cookies available, please update cookies.txt: ")
                 self.cookies_list = [c.strip() for c in open('cookies.txt', encoding='utf-8').readlines() if
                                      c.strip() != ""]
             cookie_strings = self.cookies_list[self.current_cookie_index]
@@ -125,11 +125,11 @@ class TwitterKeywordSearchSpider:
             try:
                 response = requests.get(url, headers=self.headers, cookies=cookies, params=params, timeout=(3, 10))
                 status_code = response.status_code
-                print(f"响应状态码：{status_code}")
+                print(f"Response status: {status_code}")
                 if status_code == 429:
-                    print("频率限制...")
+                    print("Rate limit reached. Rotating cookie...")
                     self.current_cookie_index = (self.current_cookie_index + 1) % len(self.cookies_list)
-                    print("更换的cookie->",self.cookies_list[self.current_cookie_index])
+                    print("Switched to cookie ->",self.cookies_list[self.current_cookie_index])
                     self.save_index()
                     continue
                 elif status_code == 200:
@@ -144,7 +144,7 @@ class TwitterKeywordSearchSpider:
                             self.current_cookie_index = 0
                         else:
                             self.current_cookie_index = self.current_cookie_index % len(self.cookies_list)
-                        print("更换的cookie->", self.cookies_list[self.current_cookie_index])
+                        print("AuthorizationError, switching cookie ->", self.cookies_list[self.current_cookie_index])
                         self.save_cookie()
                         self.save_index()
                         continue
@@ -155,18 +155,18 @@ class TwitterKeywordSearchSpider:
                     self.headers["x-client-transaction-id"] = x_id
                     continue
                 else:
-                    print("其他状况...")
+                    print("Other status code encountered...")
                     self.cookies_list.remove(cookie_strings)
                     if self.current_cookie_index == len(self.cookies_list):
                         self.current_cookie_index = 0
                     else:
                         self.current_cookie_index = self.current_cookie_index % len(self.cookies_list)
-                    print("更换的cookie->", self.cookies_list[self.current_cookie_index])
+                    print("Switched to cookie ->", self.cookies_list[self.current_cookie_index])
                     self.save_cookie()
                     self.save_index()
                     continue
             except Exception as e:
-                print(f"搜索错误: {e}")
+                print(f"Search error: {e}")
                 # return None
 
     def transfrom_time(self,date_str):
@@ -265,10 +265,10 @@ class TwitterKeywordSearchSpider:
                 quote_count = legacy.get('quote_count', 0)
                 lang = legacy.get('lang')
                 u_legacy = core['user_results']['result']['legacy']
-                is_blue_verified = "是" if core['user_results']['result']['is_blue_verified'] else "否"
-                can_dm = "是" if core['user_results']['result']['dm_permissions']['can_dm'] else "否"
-                can_media_tag = "是" if core['user_results']['result']['media_permissions']['can_media_tag'] else "否"
-                is_yellow_verified = "是" if core['user_results']['result']['verification'].get('verified_type') else "否"
+                is_blue_verified = "Yes" if core['user_results']['result']['is_blue_verified'] else "No"
+                can_dm = "Yes" if core['user_results']['result']['dm_permissions']['can_dm'] else "No"
+                can_media_tag = "Yes" if core['user_results']['result']['media_permissions']['can_media_tag'] else "No"
+                is_yellow_verified = "Yes" if core['user_results']['result']['verification'].get('verified_type') else "No"
                 hash_uname = core['user_results']['result']['core']['screen_name']
                 profile_url = f"https://x.com/{hash_uname}"
                 d_url = f"https://x.com/{hash_uname}/status/{id_str}"
@@ -285,43 +285,43 @@ class TwitterKeywordSearchSpider:
                 profile_banner_url = u_legacy.get('profile_banner_url', "-")
                 profile_image_url = u_legacy.get('profile_image_url_https', '-')
                 item = {
-                    "推文ID":id_str,
-                    "发布时间":created_at,
-                    "推文文本":full_text,
-                    "推文链接":d_url,
-                    "评论数":reply_count,
-                    "转发数":retweet_count,
-                    "引用数":quote_count,
-                    "点赞数":favorite_count,
-                    "浏览量":views_count,
-                    "语言":lang,
-                    "图片链接":image_url,
-                    "视频链接":video_url,
-                    "用户ID":uid,
-                    "用户名ID":hash_uname,
-                    "用户名":uname,
-                    "主页链接":profile_url,
-                    "简介":description,
-                    "创立时间":u_created_at,
-                    "帖子数":statuses_count,
-                    "点赞贴数":favourites_count,
-                    "关注数":friends_count,
-                    "粉丝数":followers_count,
-                    "媒体贴数":media_count,
-                    "订阅数":listed_count,
-                    "是否蓝v认证":is_blue_verified,
-                    "是否黄v认证":is_yellow_verified,
-                    "能否私信":can_dm,
-                    "能否媒体tag":can_media_tag,
-                    "主页banner图片":profile_banner_url,
-                    "头像图片":profile_image_url,
-                    "关键词":keyword
+                    "TweetID":id_str,
+                    "CreatedAt":created_at,
+                    "TweetText":full_text,
+                    "TweetURL":d_url,
+                    "ReplyCount":reply_count,
+                    "RetweetCount":retweet_count,
+                    "QuoteCount":quote_count,
+                    "LikeCount":favorite_count,
+                    "ViewsCount":views_count,
+                    "Language":lang,
+                    "ImageURL":image_url,
+                    "VideoURL":video_url,
+                    "UserID":uid,
+                    "UserHandle":hash_uname,
+                    "UserName":uname,
+                    "ProfileURL":profile_url,
+                    "UserBio":description,
+                    "AccountCreatedAt":u_created_at,
+                    "StatusesCount":statuses_count,
+                    "FavouritesCount":favourites_count,
+                    "FriendsCount":friends_count,
+                    "FollowersCount":followers_count,
+                    "MediaCount":media_count,
+                    "ListedCount":listed_count,
+                    "IsBlueVerified":is_blue_verified,
+                    "IsGoldVerified":is_yellow_verified,
+                    "CanDM":can_dm,
+                    "CanMediaTag":can_media_tag,
+                    "ProfileBannerURL":profile_banner_url,
+                    "ProfileImageURL":profile_image_url,
+                    "Keyword":keyword
                 }
 
                 print(item)
                 resultList.append(item)
             except Exception as e:
-                print(f"解析错误: {e}")
+                print(f"Parsing error: {e}")
 
         return resultList
 
@@ -359,11 +359,11 @@ class TwitterKeywordSearchSpider:
             else:
                 df.to_csv(f'./{self.saveFileName}.csv', index=False, mode='a', sep=",", encoding="utf_8_sig",
                           header=False)
-            print("保存成功")
+            print("Saved successfully")
     def run(self,keyword,since_time,endDatetime):
         cursor = "-1"
         searchCondition = f"{keyword} until_time:{endDatetime} since_time:{since_time}"
-        with open("采集日志.txt", 'w', encoding='utf-8') as f:
+        with open("scrape_log.txt", 'w', encoding='utf-8') as f:
             f.write(f"{keyword}_{cursor}")
         resqJson = self.get(cursor, searchCondition)
         cursor, entries = self.get_cursor(resqJson)
