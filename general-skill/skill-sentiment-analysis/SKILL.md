@@ -16,7 +16,10 @@ When the user triggers this skill, follow these steps strictly:
 Ask the user:
 1. **Which file** contains the text to analyze? (Usually CSV, XLSX, or TXT in `your-project/.../data/`)
 2. **Which column** contains the text? (If it's a tabular file)
-3. **What is the coding scheme?** (e.g., Simple 3-way: Positive/Negative/Neutral? Or do they need specific emotion categories like Joy, Anger, Fear, Sadness? If they don't specify, default to a 3-way polarity scale and ask for confirmation).
+3. **What is the rigorous coding scheme?** 
+   - DO NOT default to a simple 3-way (Positive/Negative/Neutral) scale unless the user explicitly requests a basic overview.
+   - Ask the user to clarify their theoretical framework or specific coding scheme.
+   - **CRITICAL REQUIREMENT**: If the user does not have a codebook or coding scheme, you MUST proactively draft a professional, academic Codebook for them based on Ekman's Basic Emotions (Anger, Disgust, Fear, Happiness, Sadness, Surprise) or another relevant communication/psychology theory. Present the draft codebook (with definitions and examples) to the user and ask for their confirmation or modification before proceeding to write any scripts.
 
 ### 2. Prepare the Python Script
 
@@ -43,9 +46,10 @@ Write a second Python script `generate_sentiment_report.py` (or do it in one scr
 2. Calculates the frequencies and percentages of each sentiment category.
 3. Generates visualizations using `matplotlib` and `seaborn`:
    - A Pie chart or Bar chart showing the overall sentiment distribution.
-   - If a `date` or `time` column exists, a Line chart showing sentiment trends over time.
+   - **CRITICAL**: If a `date` or `time` column exists, it MUST generate a Line chart showing sentiment trends over time.
 4. Saves the charts as `.png` files in the `output/` directory.
 5. Prints a markdown summary report (total analyzed, dominant sentiment, etc.) directly in the chat.
+6. **Execution**: If the user tells you to run the script, or if the dataset is small enough, you MUST actually run `generate_sentiment_report.py` via your Bash tool so that the PNG files are physically created. Do not just output the code and stop.
 
 ## Coding Prompt Guidelines (For the LLM)
 
