@@ -21,22 +21,20 @@ Ask the user:
    - Ask the user to clarify their theoretical framework or specific coding scheme.
    - **CRITICAL REQUIREMENT**: If the user does not have a codebook or coding scheme, you MUST proactively draft a professional, academic Codebook for them based on Ekman's Basic Emotions (Anger, Disgust, Fear, Happiness, Sadness, Surprise) or another relevant communication/psychology theory. Present the draft codebook (with definitions and examples) to the user and ask for their confirmation or modification before proceeding to write any scripts.
 
-### 2. Prepare the Python Script
+### 2. Prepare the Processing Strategy
 
-You will write a custom Python script to perform the analysis. 
-- *Crucial Note*: Since we are doing item-by-item LLM analysis, passing thousands of rows sequentially in a single conversation prompt is impossible. Instead, write a Python script that uses the Anthropic API (or local processing if they prefer an offline library like `vaderSentiment`/`snownlp`, but the user requested LLM) to iterate through the data.
-- However, to keep it simple and free for the user *within this session* without needing them to set up an API key, you can offer two modes:
-  - **Mode A (In-session LLM Batching)**: If the dataset is small (< 100 items), you can read the file, process the items in batches within your own Claude context, and write the annotated data to a new file using the `Edit`/`Write` tools.
-  - **Mode B (Python Script)**: For larger datasets, write a Python script that uses an open-source NLP library (like `TextBlob` for English or `SnowNLP` for Chinese) to do the heavy lifting locally, OR write a script that calls the Anthropic API (requires the user to provide their `ANTHROPIC_API_KEY`).
-
-*Given the user prefers LLM line-by-line coding, you MUST ask the user:*
-> "Since you prefer LLM-based line-by-line coding, the best approach for large datasets is for me to write a Python script that calls the Anthropic API to analyze each row. Do you have an Anthropic API key you can use for this script, or is the dataset small enough (under 100 rows) that I can just read it and code it manually right here in our chat?"
+- *Crucial Note*: The user DOES NOT want to use an external API key. You MUST process the data entirely within this session, regardless of the dataset size.
+- **For Large Datasets (> 500 rows)**: Since a single LLM response has an output token limit and will time out if you try to process thousands of rows at once, you MUST adopt a **Chunking and Appending Strategy**:
+  1. Write a Python script (`extract_chunk.py`) or use the `Read`/`Bash` tools to extract the data in chunks of 50-100 rows.
+  2. Analyze the current chunk in-session (using your own LLM capabilities).
+  3. Write/append the annotated chunk directly to the final output CSV file using the `Bash` or `Edit` tools.
+  4. Repeat this loop until the entire dataset is processed. Use the `TaskStop` / `/loop` or recursive tool calls to keep iterating without waiting for the user to prompt you for every chunk.
+  
+- Do NOT ask the user for an Anthropic API Key. Take full responsibility for processing the dataset line-by-line within the chat context, managing the batching process yourself.
 
 ### 3. Execute the Coding
 
-Based on their answer:
-- **If they have an API key / large dataset**: Write a Python script `run_sentiment.py` that reads their CSV/XLSX, iterates through the target column, sends a zero-shot or few-shot prompt to the `anthropic` Python library to get the sentiment label, and saves the result to `{original_filename}_sentiment.csv`.
-- **If it's a small dataset**: Read the file, code it yourself in a structured format, and write the output back to a new CSV file.
+- **Execute the batching loop**: Read a chunk, code it according to the agreed-upon codebook, append the results to `{original_filename}_sentiment.csv`, and move to the next chunk. Ensure the output format is strict (e.g., CSV rows) so it can be cleanly appended.
 
 ### 4. Generate the Statistical Report
 
