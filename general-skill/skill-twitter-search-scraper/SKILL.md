@@ -3,6 +3,9 @@ name: skill-twitter-search-scraper
 description: Scrape, crawl, and search Twitter / X.com tweets, profiles, and media by keywords and dates. This skill automates a complex, authenticated Python spider to collect tweets and export them to a CSV file. Use this skill whenever the user asks to "scrape Twitter," "crawl X," "search tweets," "collect Twitter data," "download tweets about [topic]," or any variation of extracting posts from Twitter/X.
 ---
 
+
+
+
 # Twitter / X.com Keyword Search Scraper
 
 This skill automates a robust, reverse-engineered Python spider that searches Twitter/X by keyword and date range, collecting detailed tweet data (text, metrics, media links, user info) and exporting it to CSV.
