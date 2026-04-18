@@ -6,7 +6,7 @@ description: Scrape, crawl, and search Twitter / X.com tweets, profiles, and med
 
 
 
-# Twitter / X.com Keyword Search Scraper
+# X.com Keyword Search Scraper
 
 This skill automates a robust, reverse-engineered Python spider that searches Twitter/X by keyword and date range, collecting detailed tweet data (text, metrics, media links, user info) and exporting it to CSV.
 
