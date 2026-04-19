@@ -1,7 +1,6 @@
-# !/usr/bin/env python
+#!/usr/bin/env python
 # -*- coding:utf-8 -*-
-# @FileName  :x_keyword_spider_新版.py
-# @Time      :2026-03-13 22:54
+# X.com keyword search spider — part of skill-twitter-search-scraper
 
 import os
 import json
