@@ -73,14 +73,14 @@ A modular end-to-end research agent that helps communication researchers go from
 
 ## Authors
 
-Sorted by number of general skills authored or co-authored. Xin Jin is the corresponding author.
+Listed in order of the number of general skills authored or co-authored. For any questions, feedback, or collaboration inquiries, please reach out to Xin Jin at [xjin6@outlook.com](mailto:xjin6@outlook.com).
 
-- [**Xin Jin**](https://www.microsoft.com/en-us/research/people/jxi/) · Microsoft · [@xjin6](https://github.com/xjin6) · xjin6@outlook.com
-- [**Sha Qiu**](https://github.com/sarahqiu-lab) · University of Macau · [@sarahqiu-lab](https://github.com/sarahqiu-lab)
-- [**Yundi Zhang**](https://github.com/Zhang-Yundi) · Fudan University · [@Zhang-Yundi](https://github.com/Zhang-Yundi)
-- [**Lihan Yan**](https://yan-lihan.github.io/) · Nanjing University · [@Lihan-YAN](https://github.com/Lihan-YAN)
-- [**Xingjian Wang**](https://github.com/W-Klaus) · Tsinghua University · [@W-Klaus](https://github.com/W-Klaus)
-- [**Qianying Ye**](https://qianyingye.github.io/) · The Hong Kong Polytechnic University · [@qianyingye](https://github.com/qianyingye)
+- [**Xin Jin**](https://www.microsoft.com/en-us/research/people/jxi/) · [@xjin6](https://github.com/xjin6) · Microsoft
+- [**Sha Qiu**](https://github.com/sarahqiu-lab) · [@sarahqiu-lab](https://github.com/sarahqiu-lab) · University of Macau
+- [**Yundi Zhang**](https://github.com/Zhang-Yundi) · [@Zhang-Yundi](https://github.com/Zhang-Yundi) · Fudan University
+- [**Lihan Yan**](https://yan-lihan.github.io/) · [@Lihan-YAN](https://github.com/Lihan-YAN) · Nanjing University
+- [**Xingjian Wang**](https://github.com/W-Klaus) · [@W-Klaus](https://github.com/W-Klaus) · Tsinghua University
+- [**Qianying Ye**](https://qianyingye.github.io/) · [@qianyingye](https://github.com/qianyingye) · The Hong Kong Polytechnic University
 
 ## License
 
