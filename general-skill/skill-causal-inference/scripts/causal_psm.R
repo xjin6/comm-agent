@@ -16,8 +16,8 @@ for (p in pkgs) {
   library(p, character.only = TRUE)
 }
 
-DATA_FILE  <- "projects/PROJECT_NAME/data/DATA_FILE.csv"
-OUTPUT_DIR <- "projects/PROJECT_NAME/output"
+DATA_FILE  <- "your-project/project-{name}/data/DATA_FILE.csv"
+OUTPUT_DIR <- "your-project/project-{name}/output/causal-inference"
 dir.create(OUTPUT_DIR, showWarnings = FALSE, recursive = TRUE)
 
 OUTCOME  <- "OUTCOME"

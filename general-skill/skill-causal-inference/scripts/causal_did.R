@@ -8,7 +8,7 @@
 # FIRST_TREAT  : year/period of first treatment (0 = never treated)
 # TREAT_PERIOD : the treatment onset period for single-timing DID
 # COVAR1 etc.  : pre-treatment covariates
-# DATA_FILE    : relative path to your CSV, e.g. "projects/my-project/data/panel.csv"
+# DATA_FILE    : relative path to your CSV, e.g. "your-project/project-{name}/data/panel.csv"
 # OUTPUT_DIR   : relative path to output folder
 
 pkgs <- c("fixest", "did", "modelsummary", "flextable", "officer",
@@ -19,8 +19,8 @@ for (p in pkgs) {
   library(p, character.only = TRUE)
 }
 
-DATA_FILE   <- "projects/PROJECT_NAME/data/DATA_FILE.csv"
-OUTPUT_DIR  <- "projects/PROJECT_NAME/output"
+DATA_FILE   <- "your-project/project-{name}/data/DATA_FILE.csv"
+OUTPUT_DIR  <- "your-project/project-{name}/output/causal-inference"
 dir.create(OUTPUT_DIR, showWarnings = FALSE, recursive = TRUE)
 
 OUTCOME      <- "OUTCOME"

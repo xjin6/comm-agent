@@ -42,7 +42,7 @@ If the user provides a data file path, read it and summarize key variables autom
 
 ### Step 2 — Language choice
 
-Ask: "你想用 **R** 还是 **Python** 来跑分析？（默认 R）"
+Ask the user whether they prefer **R** or **Python** for the analysis (default R). Match the language of your question to the user's current conversation language.
 
 - **R**: uses `MatchIt`, `WeightIt`, `did`, `ivreg`/`AER`, `modelsummary`, `ggplot2`
 - **Python**: uses `causalml`, `econml`, `linearmodels`, `statsmodels`, `matplotlib`

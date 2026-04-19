@@ -1,6 +1,6 @@
 # skill-causal-inference
 
-> **v0.3.0** · Updated 2026-04-18 · `causal-inference`
+> **v0.1.0** · Updated 2026-04-20 · `analysis`
 
 Diagnoses feasibility of quasi-experimental causal inference methods (DID, PSM, PSW, IV, RDD) for a given dataset or research idea, runs applicable methods, and outputs publication-ready three-line Word tables and diagnostic plots. Supports both R (default) and Python.
 
