@@ -71,9 +71,16 @@ Standalone, reusable skills for specific research tasks.
 
 A modular end-to-end research agent that helps communication researchers go from a research question to a publishable paper — handling the tedious parts so researchers can focus on thinking.
 
-## Author
+## Authors
 
-**Xin Jin** (@xjin6) · xjin6@outlook.com
+Sorted by number of general skills authored or co-authored.
+
+**Xin Jin** (@xjin6) · Microsoft · xjin6@outlook.com · 6 skills
+**Sha Qiu** (@sarahqiu-lab) · University of Macau · sarahq2025@gmail.com · 3 skills
+**Yundi Zhang** (@Zhang-Yundi) · Fudan University · yd.yundi@gmail.com · 2 skills
+**Lihan Yan** (@Lihan-YAN) · Nanjing University · Lihan-YAN@users.noreply.github.com · 1 skill
+**Xingjian Wang** (@W-Klaus) · Tsinghua University
+**Qianying Ye** (@qianyingye) · The Hong Kong Polytechnic University
 
 ## License
 
