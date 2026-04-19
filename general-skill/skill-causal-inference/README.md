@@ -71,7 +71,7 @@ install.packages(c(
 
 ## Author
 
-**Xin Jin** (@xjin6) · [xjin6@outlook.com](mailto:xjin6@outlook.com)
+**Lihan Yan** (@Lihan-YAN) · Lihan-YAN@users.noreply.github.com
 
 ## License
 
