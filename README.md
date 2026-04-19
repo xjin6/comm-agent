@@ -73,14 +73,14 @@ A modular end-to-end research agent that helps communication researchers go from
 
 ## Authors
 
-Sorted by number of general skills authored or co-authored.
+Sorted by number of general skills authored or co-authored. Xin Jin is the corresponding author.
 
-**Xin Jin** (@xjin6) · Microsoft · xjin6@outlook.com · 6 skills
-**Sha Qiu** (@sarahqiu-lab) · University of Macau · sarahq2025@gmail.com · 3 skills
-**Yundi Zhang** (@Zhang-Yundi) · Fudan University · yd.yundi@gmail.com · 2 skills
-**Lihan Yan** (@Lihan-YAN) · Nanjing University · Lihan-YAN@users.noreply.github.com · 1 skill
-**Xingjian Wang** (@W-Klaus) · Tsinghua University
-**Qianying Ye** (@qianyingye) · The Hong Kong Polytechnic University
+[**Xin Jin**](https://www.microsoft.com/en-us/research/people/jxi/) · Microsoft · [@xjin6](https://github.com/xjin6) · xjin6@outlook.com
+[**Sha Qiu**](https://github.com/sarahqiu-lab) · University of Macau · [@sarahqiu-lab](https://github.com/sarahqiu-lab)
+[**Yundi Zhang**](https://github.com/Zhang-Yundi) · Fudan University · [@Zhang-Yundi](https://github.com/Zhang-Yundi)
+[**Lihan Yan**](https://yan-lihan.github.io/) · Nanjing University · [@Lihan-YAN](https://github.com/Lihan-YAN)
+[**Xingjian Wang**](https://github.com/W-Klaus) · Tsinghua University · [@W-Klaus](https://github.com/W-Klaus)
+[**Qianying Ye**](https://qianyingye.github.io/) · The Hong Kong Polytechnic University · [@qianyingye](https://github.com/qianyingye)
 
 ## License
 
