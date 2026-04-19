@@ -1,0 +1,17 @@
+{
+  "skill_name": "skill-sentiment-analysis",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I have a small dataset of 10 tweets in a CSV file called 'test_tweets.csv'. The text is in the 'content' column. Can you do sentiment analysis on them line by line? I don't have an API key so just do it here.",
+      "expected_output": "The skill should read the file, perform sentiment analysis (Positive/Negative/Neutral) on each row within the session, create a new CSV with the labels appended, and output a basic statistical report (pie chart/bar chart description or image).",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "I have a large file 'reviews.xlsx' with 5000 rows. The text is in 'ReviewText' and the date is in 'ReviewDate'. I want to use my Anthropic API key to code the sentiment and then get a trend report over time.",
+      "expected_output": "The skill should recognize it's a large dataset, ask for the API key (or assume it's provided in the environment), write a Python script `run_sentiment.py` to batch-process the data via the Anthropic API, write `generate_sentiment_report.py` to create a time-series line chart and a pie chart, and save them to the output folder.",
+      "files": []
+    }
+  ]
+}
