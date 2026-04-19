@@ -91,11 +91,11 @@ Open `sem_interactive.html` in any browser:
 - **Drag constructs** — items and errors move with them
 - **Export PNG** — downloads current view at 2.5× resolution
 
-## Author
+## Authors
 
 **Xin Jin** (@xjin6) · xjin6@outlook.com
 
-**Sha Sarah QIU** · sarahq2025@gmail.com
+**Sha Qiu** (@sarahqiu-lab) · sarahq2025@gmail.com
 
 ## License
 

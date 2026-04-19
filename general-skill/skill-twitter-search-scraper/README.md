@@ -35,3 +35,11 @@ Simply ask the agent to search Twitter:
 > *"Scrape tweets mentioning #TradeWar from 2025-07-01 to 2025-07-31 and save them to trade_tweets"*
 
 The agent will automatically configure the spider, inject your parameters, and run the collection process.
+
+## Author
+
+**Yundi Zhang** (@Zhang-Yundi) · yd.yundi@gmail.com
+
+## License
+
+CC BY-NC-ND 4.0

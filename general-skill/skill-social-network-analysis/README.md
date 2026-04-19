@@ -106,9 +106,9 @@ The agent guides you interactively — it always presents recommendations and wa
 - Goel, S., Anderson, A., Hofman, J., & Watts, D. J. (2016). The structural virality of online diffusion. *Management Science*, *62*(1), 180–196.
 - Borgatti, S. P., Mehra, A., Brass, D. J., & Labianca, G. (2009). Network analysis in the social sciences. *Science*, *323*(5916), 892–895.
 
-## Authors
+## Author
 
-**Sha Sarah QIU** (@sarahqiu-lab) · sarahq2025@gmail.com
+**Sha Qiu** (@sarahqiu-lab) · sarahq2025@gmail.com
 
 ## License
 

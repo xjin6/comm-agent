@@ -35,3 +35,11 @@ Simply point the agent to your data and state your goal:
 > *"I have a large file 'tweets.csv' in my project data folder. Please do an emotion analysis on the 'TweetText' column based on Ekman's six basic emotions."*
 
 The skill will handle drafting the codebook, extracting and chunking the data for coding, and plotting the final trend graphs.
+
+## Author
+
+**Yundi Zhang** (@Zhang-Yundi) · yd.yundi@gmail.com
+
+## License
+
+CC BY-NC-ND 4.0

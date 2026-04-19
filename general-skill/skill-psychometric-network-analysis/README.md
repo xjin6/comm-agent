@@ -121,9 +121,9 @@ The agent guides you interactively — it always presents recommendations and wa
 - van Borkulo, C. D., et al. (2022). Comparing network structures on three aspects: A permutation test. *Psychological Methods*, *27*(6), 1033–1043.
 - Haslbeck, J. M. B., & Waldorp, L. J. (2018). How well do network models predict observations? On the importance of predictability in network models. *Behavior Research Methods*, *50*(2), 853–861.
 
-## Authors
+## Author
 
-**Sha Sarah QIU** (@sarahqiu-lab) · sarahq2025@gmail.com
+**Sha Qiu** (@sarahqiu-lab) · sarahq2025@gmail.com
 
 
 ## License
