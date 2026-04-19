@@ -14,9 +14,14 @@ comm-agent/
 │   ├── skill-weibo-topic-scraper/
 │   ├── skill-xiaohongshu-search-scraper/
 │   ├── skill-douyin-trending-topic-scraper/
+│   ├── skill-twitter-search-scraper/
 │   ├── skill-structural-equation-modeling/
 │   ├── skill-quantitative-analysis/
-│   └── skill-apa-reference-list/
+│   ├── skill-apa-reference-list/
+│   ├── skill-causal-inference/
+│   ├── skill-sentiment-analysis/
+│   ├── skill-social-network-analysis/
+│   └── skill-psychometric-network-analysis/
 └── your-project/                   # Your personal workspace — intentionally empty
     └── project-{name}/             # Created by the agent when you start a project
         ├── context.md              # Describe your study here
@@ -43,9 +48,14 @@ Standalone, reusable skills for specific research tasks.
 | [skill-weibo-topic-scraper](./general-skill/skill-weibo-topic-scraper/) | v0.1.0 | Scrape Sina Weibo topic posts, comments, and user profiles |
 | [skill-xiaohongshu-search-scraper](./general-skill/skill-xiaohongshu-search-scraper/) | v0.1.0 | Scrape Xiaohongshu notes, comments, and user profiles by keyword |
 | [skill-douyin-trending-topic-scraper](./general-skill/skill-douyin-trending-topic-scraper/) | v0.1.0 | Scrape Douyin trending topics list and videos under specific trending topics |
-| [skill-structural-equation-modeling](./general-skill/skill-structural-equation-modeling/) | v0.2.0 | EFA / CFA / Full SEM / Mediation / Moderation with MI optimization, item diagnostics, measurement quality tables, and APA publication tables |
+| [skill-twitter-search-scraper](./general-skill/skill-twitter-search-scraper/) | v0.1.0 | Scrape Twitter/X tweets, profiles, and media by keyword and date range |
+| [skill-structural-equation-modeling](./general-skill/skill-structural-equation-modeling/) | v0.4.0 | EFA / CFA / Full SEM / Mediation (PROCESS templates) / Moderation with bootstrap CI, MI optimization, and APA tables |
 | [skill-apa-reference-list](./general-skill/skill-apa-reference-list/) | v0.1.0 | Read literature files and generate an APA 7th edition reference list |
 | [skill-quantitative-analysis](./general-skill/skill-quantitative-analysis/) | v0.1.0 | End-to-end inferential statistics: ANOVA, t-tests, chi-squared, regression, and descriptive analysis on survey data |
+| [skill-causal-inference](./general-skill/skill-causal-inference/) | v0.1.0 | Quasi-experimental causal methods: DID, PSM, PSW, IV, RDD with R templates and APA Word tables |
+| [skill-sentiment-analysis](./general-skill/skill-sentiment-analysis/) | v0.1.0 | In-session LLM-based sentiment/emotion coding for tabular text data |
+| [skill-social-network-analysis](./general-skill/skill-social-network-analysis/) | v0.1.0 | SNA pipeline: network construction, centrality, community detection, QAP comparison |
+| [skill-psychometric-network-analysis](./general-skill/skill-psychometric-network-analysis/) | v0.1.0 | GGM / EBIC-glasso estimation, bootnet stability, NCT comparison, cross-lagged panel networks |
 
 ## Getting Started
 

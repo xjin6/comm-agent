@@ -1,5 +1,20 @@
 # Changelog
 
+## [agent] - 2026-04-20
+
+### Added
+- `skill-sentiment-analysis` (v0.1.0) — in-session LLM-based sentiment/emotion coding for tabular text data
+- `skill-twitter-search-scraper` (v0.1.0) — keyword + date-range Twitter/X scraper with cookie rotation
+- `skill-causal-inference` (v0.1.0) — DID / PSM / PSW / IV / RDD R templates with APA Word-table output
+- `skill-social-network-analysis` (v0.1.0) — network construction, centrality, community detection, QAP comparison
+- `skill-psychometric-network-analysis` (v0.1.0) — GGM / EBIC-glasso, bootnet stability, NCT, cross-lagged panel networks
+
+### Changed
+- `skill-structural-equation-modeling` upgraded v0.3.0 → v0.4.0 — startup guidance, CTRL_MAP, PROCESS templates, bootstrap CI, moderation analysis
+- `CLAUDE.md`, `README.md`, `requirements.txt` — register the 5 new skills and the SEM version bump
+
+---
+
 ## [agent] - 2026-04-12 (2)
 
 ### Added

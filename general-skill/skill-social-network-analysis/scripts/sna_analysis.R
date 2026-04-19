@@ -16,7 +16,7 @@ suppressPackageStartupMessages({
 # Parameters (substituted by the skill at runtime)
 # ---------------------------------------------------------------------------
 GRAPHML_PATH  <- "{GRAPHML_PATH}"   # input: network exported from Python as GraphML
-OUTPUT_DIR    <- "{OUTPUT_DIR}"     # e.g. your-project/project-name/output/network/sna
+OUTPUT_DIR    <- "{OUTPUT_DIR}"     # e.g. your-project/project-{name}/output/network/sna
 LAYOUT        <- "{LAYOUT}"         # "fr" | "kk" | "lgl" | "auto"
 IS_DIRECTED   <- {IS_DIRECTED}      # TRUE / FALSE
 IS_WEIGHTED   <- {IS_WEIGHTED}      # TRUE / FALSE

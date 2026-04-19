@@ -7,14 +7,14 @@ description: Run LLM-based sentiment analysis on a dataset (CSV, XLSX, TXT). It 
 
 This skill guides the user through conducting rigorous, item-by-item sentiment analysis on text datasets using a large language model (LLM), and produces an aggregated statistical report suitable for research.
 
-## workflow
+## Workflow
 
 When the user triggers this skill, follow these steps strictly:
 
 ### 1. Identify the Data and Scope
 
 Ask the user:
-1. **Which file** contains the text to analyze? (Usually CSV, XLSX, or TXT in `your-project/.../data/`)
+1. **Which file** contains the text to analyze? (Usually CSV, XLSX, or TXT in `your-project/project-{name}/data/`)
 2. **Which column** contains the text? (If it's a tabular file)
 3. **What is the rigorous coding scheme?** 
    - DO NOT default to a simple 3-way (Positive/Negative/Neutral) scale unless the user explicitly requests a basic overview.
@@ -45,7 +45,7 @@ Write a second Python script `generate_sentiment_report.py` (or do it in one scr
 3. Generates visualizations using `matplotlib` and `seaborn`:
    - A Pie chart or Bar chart showing the overall sentiment distribution.
    - **CRITICAL**: If a `date` or `time` column exists, it MUST generate a Line chart showing sentiment trends over time.
-4. Saves the charts as `.png` files in the `output/` directory.
+4. Saves the charts as `.png` files in `your-project/project-{name}/output/sentiment-analysis/`.
 5. Prints a markdown summary report (total analyzed, dominant sentiment, etc.) directly in the chat.
 6. **Execution**: If the user tells you to run the script, or if the dataset is small enough, you MUST actually run `generate_sentiment_report.py` via your Bash tool so that the PNG files are physically created. Do not just output the code and stop.
 

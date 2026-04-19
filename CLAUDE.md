@@ -17,9 +17,14 @@ Available skills:
 - `skill-weibo-topic-scraper` — Scrape posts, comments, and user profiles from Sina Weibo topics
 - `skill-xiaohongshu-search-scraper` — Scrape notes, comments, and user profiles from Xiaohongshu (小红书) by keyword
 - `skill-douyin-trending-topic-scraper` — Scrape Douyin (抖音) trending topics list and videos under specific trending topics
-- `skill-structural-equation-modeling` — Specify, estimate, and interpret SEM models including CFA and path analysis
+- `skill-twitter-search-scraper` — Scrape Twitter/X tweets, profiles, and media by keyword and date range
+- `skill-structural-equation-modeling` — EFA / CFA / Full SEM / Mediation / Moderation with bootstrap CI and APA tables
 - `skill-apa-reference-list` — Read literature files and generate an APA 7th edition reference list
 - `skill-quantitative-analysis` — End-to-end inferential statistics: ANOVA, t-tests, chi-squared, regression (linear/logistic/ordinal), and descriptive analysis on survey data
+- `skill-causal-inference` — Quasi-experimental causal methods: DID, PSM, PSW, IV, RDD (R templates + APA Word tables)
+- `skill-sentiment-analysis` — In-session LLM-based sentiment/emotion coding for tabular text data
+- `skill-social-network-analysis` — SNA pipeline: network construction, centrality, community detection, QAP comparison
+- `skill-psychometric-network-analysis` — GGM / EBIC-glasso estimation, bootnet stability, NCT comparison, CLPNA
 
 ## How to Use
 
